@@ -58,7 +58,7 @@ export function CompareTray() {
             {canCompare ? (
               <Link
                 href={compareHref(entries.map((e) => e.slug))}
-                className="rounded-full px-4 py-1.5 text-sm font-medium bg-linear-to-b from-cta-from to-cta-to border border-cta-border text-text hover:brightness-95 active:brightness-90 shadow-sm"
+                className="rounded-lg px-4 py-2 text-sm font-medium bg-cta-to text-text shadow-sm hover:shadow-md hover:brightness-95 transition-all duration-150 active:scale-[0.97]"
               >
                 Compare now
               </Link>

@@ -2,24 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Backpack,
-  Headphones,
-  NotebookPen,
-  Pencil,
-  Laptop,
-  Speaker,
-  Watch,
-  Gamepad2,
-  Joystick,
-  Monitor,
-  type LucideIcon,
-} from "lucide-react";
+import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ICON_PHOTOS } from "@/lib/promo-photos";
+import { unsplashUrl } from "@/lib/unsplash";
+import type { ProductIconKey } from "@/lib/types";
 
 interface Sticker {
-  Icon: LucideIcon;
+  icon: ProductIconKey;
   size: number;
   top: string;
   left: string;
@@ -45,10 +35,10 @@ const SLIDES: Slide[] = [
     ctaLabel: "Shop Back to School",
     ctaHref: "/search?category=Back+to+School",
     stickers: [
-      { Icon: Backpack, size: 68, top: "14%", left: "56%", rotate: -8 },
-      { Icon: Headphones, size: 50, top: "58%", left: "70%", rotate: 6 },
-      { Icon: NotebookPen, size: 46, top: "10%", left: "78%", rotate: 10 },
-      { Icon: Pencil, size: 40, top: "62%", left: "88%", rotate: -14 },
+      { icon: "Backpack", size: 68, top: "14%", left: "56%", rotate: -8 },
+      { icon: "Headphones", size: 50, top: "58%", left: "70%", rotate: 6 },
+      { icon: "NotebookPen", size: 46, top: "10%", left: "78%", rotate: 10 },
+      { icon: "Pencil", size: 40, top: "62%", left: "88%", rotate: -14 },
     ],
   },
   {
@@ -59,10 +49,10 @@ const SLIDES: Slide[] = [
     ctaLabel: "Shop Electronics",
     ctaHref: "/search?category=Electronics",
     stickers: [
-      { Icon: Headphones, size: 64, top: "16%", left: "58%", rotate: 6 },
-      { Icon: Laptop, size: 54, top: "56%", left: "72%", rotate: -6 },
-      { Icon: Speaker, size: 42, top: "12%", left: "82%", rotate: -10 },
-      { Icon: Watch, size: 38, top: "64%", left: "90%", rotate: 12 },
+      { icon: "Headphones", size: 64, top: "16%", left: "58%", rotate: 6 },
+      { icon: "Laptop", size: 54, top: "56%", left: "72%", rotate: -6 },
+      { icon: "Speaker", size: 42, top: "12%", left: "82%", rotate: -10 },
+      { icon: "Watch", size: 38, top: "64%", left: "90%", rotate: 12 },
     ],
   },
   {
@@ -73,10 +63,10 @@ const SLIDES: Slide[] = [
     ctaLabel: "Shop Gaming",
     ctaHref: "/search?category=Gaming",
     stickers: [
-      { Icon: Gamepad2, size: 66, top: "14%", left: "58%", rotate: -6 },
-      { Icon: Joystick, size: 48, top: "58%", left: "72%", rotate: 8 },
-      { Icon: Monitor, size: 46, top: "10%", left: "80%", rotate: -10 },
-      { Icon: Headphones, size: 38, top: "64%", left: "90%", rotate: 10 },
+      { icon: "Gamepad2", size: 66, top: "14%", left: "58%", rotate: -6 },
+      { icon: "Joystick", size: 48, top: "58%", left: "72%", rotate: 8 },
+      { icon: "Monitor", size: 46, top: "10%", left: "80%", rotate: -10 },
+      { icon: "Headphones", size: 38, top: "64%", left: "90%", rotate: 10 },
     ],
   },
 ];
@@ -96,21 +86,25 @@ export function HeroBanner() {
         </h1>
         <Link
           href={slide.ctaHref}
-          className="mt-4 inline-block bg-white text-text text-sm font-medium px-4 py-2 rounded-full w-fit hover:bg-white/90"
+          className="mt-4 inline-block bg-white text-text text-sm font-medium px-4 py-2 rounded-lg w-fit shadow-sm hover:shadow-md transition-all duration-150 active:scale-[0.97]"
         >
           {slide.ctaLabel}
         </Link>
 
-        {slide.stickers.map(({ Icon, size, top, left, rotate }, i) => (
-          <div
-            key={i}
-            className="hidden sm:flex absolute items-center justify-center bg-white rounded-2xl shadow-lg"
-            style={{ width: size, height: size, top, left, transform: `rotate(${rotate}deg)` }}
-            aria-hidden="true"
-          >
-            <Icon size={size * 0.55} className="text-text" strokeWidth={1.5} />
-          </div>
-        ))}
+        {slide.stickers.map(({ icon, size, top, left, rotate }, i) => {
+          const photoId = ICON_PHOTOS[icon];
+          if (!photoId) return null;
+          return (
+            <div
+              key={i}
+              className="hidden sm:block absolute rounded-2xl shadow-lg overflow-hidden border-4 border-white"
+              style={{ width: size, height: size, top, left, transform: `rotate(${rotate}deg)` }}
+              aria-hidden="true"
+            >
+              <Image src={unsplashUrl(photoId, size * 3)} alt="" fill sizes={`${size}px`} className="object-cover" />
+            </div>
+          );
+        })}
       </div>
 
       <button

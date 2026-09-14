@@ -4,16 +4,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "cta" | "secondary" | "buynow" | "link";
 }
 
+/**
+ * Flat, solid-fill "Material"-style buttons: no gradient, a real elevation
+ * shadow that grows on hover, and a slight press-down scale on click for
+ * tactile feedback - replacing the earlier gradient-pill-with-border look.
+ */
 const VARIANT_CLASSES: Record<NonNullable<ButtonProps["variant"]>, string> = {
-  cta:
-    "bg-linear-to-b from-cta-from to-cta-to border border-cta-border text-text " +
-    "hover:brightness-95 active:brightness-90 shadow-sm",
-  buynow:
-    "bg-linear-to-b from-[#f0a952] to-accent border border-[#a05a00] text-text " +
-    "hover:brightness-95 active:brightness-90 shadow-sm",
-  secondary:
-    "bg-linear-to-b from-white to-[#e7e9ec] border border-border-strong text-text " +
-    "hover:brightness-95 active:brightness-90 shadow-sm",
+  cta: "bg-cta-to text-text shadow-sm hover:shadow-md hover:brightness-95",
+  buynow: "bg-accent text-white shadow-sm hover:shadow-md hover:brightness-95",
+  secondary: "bg-[#f0f2f2] text-text shadow-sm hover:shadow-md hover:bg-[#e3e6e6]",
   link: "text-link hover:text-link-hover hover:underline",
 };
 
@@ -21,6 +20,6 @@ export function Button({ variant = "secondary", className = "", ...props }: Butt
   const base =
     variant === "link"
       ? "text-sm"
-      : "rounded-full px-4 py-1.5 text-sm font-normal";
+      : "rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.97]";
   return <button className={`${base} ${VARIANT_CLASSES[variant]} ${className}`} {...props} />;
 }
