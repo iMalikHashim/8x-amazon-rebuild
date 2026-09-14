@@ -48,6 +48,37 @@ export type ProductIconKey =
   | "Router"
   | "GlassWater";
 
+export interface Address {
+  fullName: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  state: string;
+  zip: string;
+}
+
+export interface OrderItem {
+  productId: string;
+  slug: string;
+  title: string;
+  price: number;
+  icon: ProductIconKey;
+  quantity: number;
+}
+
+export interface Order {
+  id: string;
+  placedAt: string;
+  items: OrderItem[];
+  subtotal: number;
+  shipping: number;
+  tax: number;
+  total: number;
+  address: Address;
+  cardLast4: string;
+  estimatedDelivery: string;
+}
+
 export interface Product {
   id: string;
   slug: string;
