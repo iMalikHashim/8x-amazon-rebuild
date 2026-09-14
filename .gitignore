@@ -34,3 +34,4 @@ yarn-error.log*
 .pnpm-debug.log*
 __pycache__/
 .claude/hooks/capture-debug.log
+.env*
