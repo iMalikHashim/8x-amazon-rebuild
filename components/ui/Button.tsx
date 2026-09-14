@@ -1,12 +1,15 @@
 import type { ButtonHTMLAttributes } from "react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "cta" | "secondary" | "link";
+  variant?: "cta" | "secondary" | "buynow" | "link";
 }
 
 const VARIANT_CLASSES: Record<NonNullable<ButtonProps["variant"]>, string> = {
   cta:
     "bg-linear-to-b from-cta-from to-cta-to border border-cta-border text-text " +
+    "hover:brightness-95 active:brightness-90 shadow-sm",
+  buynow:
+    "bg-linear-to-b from-[#f0a952] to-accent border border-[#a05a00] text-text " +
     "hover:brightness-95 active:brightness-90 shadow-sm",
   secondary:
     "bg-linear-to-b from-white to-[#e7e9ec] border border-border-strong text-text " +

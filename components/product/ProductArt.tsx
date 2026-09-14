@@ -2,10 +2,13 @@ import { categoryArt } from "@/lib/category-art";
 import { productIcons } from "@/lib/product-icons";
 import type { Category, ProductIconKey } from "@/lib/types";
 
+export type ProductArtVariant = "default" | "zoom" | "flip" | "mono";
+
 interface ProductArtProps {
   icon: ProductIconKey;
   category: Category;
   className?: string;
+  variant?: ProductArtVariant;
 }
 
 /**
@@ -14,15 +17,20 @@ interface ProductArtProps {
  * grounding shadow. Stands in for real product photography, which isn't
  * available without scraping (see docs/architecture.md, section 5).
  */
-export function ProductArt({ icon, category, className = "" }: ProductArtProps) {
+export function ProductArt({ icon, category, className = "", variant = "default" }: ProductArtProps) {
   const Icon = productIcons[icon];
   const { accent, tint } = categoryArt[category];
+
+  const iconSize = variant === "zoom" ? "w-[58%] h-[58%]" : "w-[42%] h-[42%]";
+  const iconTransform: string[] = [];
+  if (variant === "flip") iconTransform.push("scale-x-[-1]");
+  if (variant === "mono") iconTransform.push("grayscale");
 
   return (
     <div className={`relative aspect-square bg-white overflow-hidden ${className}`}>
       <div
         className="absolute inset-[8%] rounded-full blur-2xl opacity-70"
-        style={{ backgroundColor: tint }}
+        style={{ backgroundColor: variant === "mono" ? "#E5E5E5" : tint }}
         aria-hidden="true"
       />
       <div
@@ -32,7 +40,7 @@ export function ProductArt({ icon, category, className = "" }: ProductArtProps) 
       />
       <div className="absolute inset-0 flex items-center justify-center">
         <Icon
-          className="w-[42%] h-[42%] drop-shadow-sm"
+          className={`${iconSize} drop-shadow-sm ${iconTransform.join(" ")}`}
           style={{ color: accent }}
           strokeWidth={1.5}
           aria-hidden="true"
