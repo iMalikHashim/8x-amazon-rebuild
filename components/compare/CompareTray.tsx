@@ -25,12 +25,17 @@ export function CompareTray() {
         aria-label="Product comparison tray"
         className={`fixed inset-x-0 bottom-0 z-40 border-t border-border bg-white shadow-[0_-2px_8px_rgba(0,0,0,0.08)] ${TRAY_HEIGHT}`}
       >
-        <div className="max-w-[1500px] mx-auto h-full px-2 sm:px-3 py-2 flex items-center gap-3 overflow-x-auto">
-          <span className="shrink-0 text-sm font-bold text-text">
+        <div className="max-w-[1500px] mx-auto h-full px-2 sm:px-3 py-2 flex items-center gap-3">
+          <span className="shrink-0 text-sm font-bold text-text hidden sm:inline">
             Compare ({count}/{MAX_COMPARE_ITEMS})
           </span>
 
-          <ul className="flex items-center gap-2 shrink-0">
+          {/* Only this strip scrolls - the count label and the actions
+              below stay pinned in view no matter how many items are
+              selected, so "Compare now" is never scrolled off-screen
+              (found via a real 390px check: with the whole row scrolling
+              as one, the button's right edge landed off the viewport). */}
+          <ul className="flex items-center gap-2 min-w-0 flex-1 overflow-x-auto">
             {entries.map((entry) => (
               <li key={entry.id} className="relative shrink-0">
                 <ProductImage product={entry} className="w-11 h-11 rounded-sm" sizes="44px" />
@@ -46,7 +51,7 @@ export function CompareTray() {
             ))}
           </ul>
 
-          <div className="ml-auto flex items-center gap-3 shrink-0">
+          <div className="flex items-center gap-3 shrink-0">
             <button type="button" onClick={clear} className="text-xs text-link hover:text-link-hover hover:underline">
               Clear all
             </button>
