@@ -45,16 +45,52 @@ export default function CheckoutPage() {
 
   if (!user) {
     return (
-      <div className="max-w-[1500px] mx-auto px-2 sm:px-3 py-12 flex flex-col items-center gap-4 text-center">
-        <h1 className="text-2xl text-text">Sign in to check out</h1>
-        <p className="text-text-secondary max-w-sm">
-          We need an account (mocked - any email works) to attach an address and order history to.
-        </p>
-        <Link href="/sign-in?redirect=/checkout">
-          <Button variant="cta" className="px-6 py-2 font-medium">
-            Sign in
-          </Button>
-        </Link>
+      <div className="max-w-[1100px] mx-auto px-2 sm:px-3 py-8 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 items-start">
+        <div className="bg-white border border-border rounded-sm p-10 flex flex-col items-center justify-center gap-4 text-center min-h-[360px]">
+          <h1 className="text-2xl text-text">Sign in to check out</h1>
+          <p className="text-text-secondary max-w-sm">
+            We need an account (mocked - no real backend) to attach an address and order history to.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 mt-1">
+            <Link href="/sign-in?redirect=/checkout">
+              <Button variant="cta" className="px-6 py-2 font-medium w-full">
+                Sign in
+              </Button>
+            </Link>
+            <Link href="/signup?redirect=/checkout">
+              <Button variant="secondary" className="px-6 py-2 font-medium w-full">
+                Create account
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        <div className="bg-white border border-border rounded-sm p-4 h-fit">
+          <h2 className="font-bold text-base text-text mb-3">
+            Your cart {items.length > 0 ? `(${items.reduce((n, i) => n + i.quantity, 0)} item${items.length === 1 ? "" : "s"})` : ""}
+          </h2>
+          {items.length === 0 ? (
+            <p className="text-sm text-text-secondary">Your cart is empty.</p>
+          ) : (
+            <>
+              <ul className="flex flex-col divide-y divide-border">
+                {items.map((item) => (
+                  <li key={item.productId} className="flex justify-between gap-3 py-2 text-sm">
+                    <span className="line-clamp-1">
+                      {item.title}
+                      {item.quantity > 1 && <span className="text-text-secondary"> x{item.quantity}</span>}
+                    </span>
+                    <span className="shrink-0">{formatUsd(item.price * item.quantity)}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="border-t border-border mt-1 pt-2 flex justify-between font-bold text-sm text-text">
+                <span>Subtotal</span>
+                <span>{formatUsd(subtotal)}</span>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     );
   }
@@ -82,6 +118,7 @@ export default function CheckoutPage() {
     setPlacing(true);
     const order: Order = {
       id: generateOrderId(),
+      userEmail: user.email,
       placedAt: new Date().toISOString(),
       items: items.map((i) => ({
         productId: i.productId,

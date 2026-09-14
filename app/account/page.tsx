@@ -2,29 +2,42 @@
 
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
+import { useOrders } from "@/lib/orders-context";
 import { Button } from "@/components/ui/Button";
 
 export default function AccountPage() {
   const { user, signOut } = useAuth();
+  const { orders } = useOrders();
 
   if (!user) {
     return (
       <div className="max-w-[1500px] mx-auto px-2 sm:px-3 py-12 flex flex-col items-center gap-4 text-center">
         <h1 className="text-2xl text-text">Sign in to view your account</h1>
-        <Link href="/sign-in?redirect=/account">
-          <Button variant="cta" className="px-6 py-2 font-medium">
-            Sign in
-          </Button>
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link href="/sign-in?redirect=/account">
+            <Button variant="cta" className="px-6 py-2 font-medium">
+              Sign in
+            </Button>
+          </Link>
+          <Link href="/signup?redirect=/account">
+            <Button variant="secondary" className="px-6 py-2 font-medium">
+              Create account
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
+
+  const myOrders = orders.filter((o) => o.userEmail.toLowerCase() === user.email.toLowerCase());
+  const savedAddress = myOrders[0]?.address;
 
   return (
     <div className="max-w-[700px] mx-auto px-2 sm:px-3 py-4 flex flex-col gap-4">
       <h1 className="text-2xl text-text">Your Account</h1>
 
       <div className="bg-white border border-border rounded-sm p-5 flex flex-col gap-3">
+        <h2 className="font-bold text-text">Profile</h2>
         <div>
           <p className="text-text-secondary text-xs">Name</p>
           <p className="text-text">{user.name}</p>
@@ -38,12 +51,34 @@ export default function AccountPage() {
         </Button>
       </div>
 
+      <div className="bg-white border border-border rounded-sm p-5">
+        <h2 className="font-bold text-text mb-2">Saved address</h2>
+        {savedAddress ? (
+          <div className="text-sm text-text-secondary">
+            <p className="text-text">{savedAddress.fullName}</p>
+            <p>
+              {savedAddress.line1}
+              {savedAddress.line2 ? `, ${savedAddress.line2}` : ""}
+            </p>
+            <p>
+              {savedAddress.city}, {savedAddress.state} {savedAddress.zip}
+            </p>
+          </div>
+        ) : (
+          <p className="text-sm text-text-secondary">
+            No saved address yet - the address from your first order will show up here.
+          </p>
+        )}
+      </div>
+
       <Link
         href="/account/orders"
         className="bg-white border border-border rounded-sm p-5 hover:shadow-md transition-shadow"
       >
         <h2 className="font-bold text-text">Your Orders</h2>
-        <p className="text-sm text-text-secondary mt-1">Track, view, or manage your recent orders.</p>
+        <p className="text-sm text-text-secondary mt-1">
+          {myOrders.length > 0 ? `${myOrders.length} order${myOrders.length === 1 ? "" : "s"} placed.` : "Track, view, or manage your recent orders."}
+        </p>
       </Link>
     </div>
   );

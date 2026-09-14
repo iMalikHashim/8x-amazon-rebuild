@@ -56,7 +56,7 @@ export function AccountFlyout() {
               </Link>
               <p className="text-xs text-center mt-2">
                 New customer?{" "}
-                <Link href="/sign-in" className="text-link hover:text-link-hover hover:underline">
+                <Link href="/signup" className="text-link hover:text-link-hover hover:underline">
                   Start here.
                 </Link>
               </p>
