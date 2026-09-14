@@ -1,7 +1,7 @@
 # Amazon Rebuild
 
 A from-scratch rebuild of the amazon.com shopping experience, built for the 8x take-home
-assignment. Next.js 16 (App Router) + TypeScript + Tailwind v4.
+assignment. Next.js 16 (App Router) + TypeScript + Tailwind v4 + Neon Postgres (Drizzle ORM).
 
 **Live:** https://8x-amazon-rebuild.vercel.app
 **Architecture / scope decisions:** [docs/architecture.md](docs/architecture.md)
@@ -11,32 +11,40 @@ assignment. Next.js 16 (App Router) + TypeScript + Tailwind v4.
 
 ```bash
 npm install
+```
+
+Requires a Postgres connection string in `.env.local`:
+
+```
+DATABASE_URL=postgres://...
+```
+
+Then push the schema and seed the catalog:
+
+```bash
+npm run db:push
+npm run db:seed
 npm run dev
 ```
 
-## Auth is intentionally mocked
+## What's real vs. what's mocked
 
-There is no backend, no real authentication server, and no password hashing. Sign-up and
-sign-in are implemented entirely client-side:
+Auth, persistence, and the database are real:
 
-- Accounts created via `/signup` are stored as plain JSON in `localStorage`
-  (`8x-amazon-rebuild:users`), **passwords included and unhashed**.
-- Sign-in checks the entered email/password against that same local list - it never leaves
-  the browser.
-- The active session is just an email string in `localStorage`
-  (`8x-amazon-rebuild:session`).
+- Passwords are hashed with bcrypt before ever touching the database - never stored or
+  logged in plain text.
+- Sessions are opaque random tokens stored server-side in Postgres and set as an httpOnly,
+  secure cookie - never readable from client JS, never stored in `localStorage`.
+- Accounts, orders, order line items, and reviews are all persisted in Postgres and scoped
+  to the signed-in user, so they survive across browsers and devices, not just a refresh in
+  the same tab.
+- The product catalog itself lives in Postgres too (seeded from a fixture list) - search,
+  the PDP, and the homepage all read live from the database.
 
-This is a deliberate scope cut, not an oversight: building real authentication (a backend,
-a database, password hashing, session tokens) would be disproportionate effort for a
-project with no real backend anywhere else, and doesn't change what's being evaluated -
-the shopping loop. It does mean:
+Cart is the one deliberately hybrid piece: it stays in `localStorage` for signed-out
+visitors (so browsing/adding to cart before creating an account doesn't require a round
+trip), and merges into that user's database-backed cart the moment they sign in or sign up.
 
-- **Never enter a real password here.** Treat every account on this deployment as public.
-- Clearing site data / using a different browser resets everything (accounts, cart,
-  orders) - there is no server-side record of any of it.
-- Orders are tagged with the email of whoever placed them, so signing in as a different
-  (locally-created) account shows that account's own order history, not anyone else's -
-  but only because both accounts live in the same browser's localStorage.
-
-Cart, orders, and auth all persist across a refresh via localStorage for the same reason:
-there's no backend session to persist them server-side.
+**Checkout/payment is still simulated** - there is no real payment processor. Card details
+entered at checkout are never sent to the server or stored anywhere; only the last 4 digits
+are persisted with the order, purely for display on the order history/confirmation pages.
