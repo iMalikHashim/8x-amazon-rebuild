@@ -5,43 +5,26 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { useCart } from "@/lib/cart-context";
-import { useOrders } from "@/lib/orders-context";
 import { AddressForm } from "@/components/checkout/AddressForm";
 import { PaymentForm, type PaymentInfo } from "@/components/checkout/PaymentForm";
 import { OrderReview } from "@/components/checkout/OrderReview";
 import { Button } from "@/components/ui/Button";
 import { formatUsd } from "@/lib/format";
-import type { Address, Order } from "@/lib/types";
-
-const FREE_SHIPPING_THRESHOLD = 35;
-const FLAT_SHIPPING = 5.99;
-const TAX_RATE = 0.08;
-
-function generateOrderId(): string {
-  const rand = (digits: number) =>
-    Math.floor(Math.random() * 10 ** digits)
-      .toString()
-      .padStart(digits, "0");
-  return `${rand(3)}-${rand(7)}-${rand(7)}`;
-}
-
-function formatDeliveryDate(daysFromNow: number): string {
-  const date = new Date(Date.now() + daysFromNow * 86400000);
-  return date.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
-}
+import { computeShipping, computeTax } from "@/lib/pricing";
+import type { Address } from "@/lib/types";
 
 type Step = 1 | 2 | 3;
 
 export default function CheckoutPage() {
   const { user } = useAuth();
   const { items, subtotal, clear } = useCart();
-  const { placeOrder } = useOrders();
   const router = useRouter();
 
   const [step, setStep] = useState<Step>(1);
   const [address, setAddress] = useState<Address | null>(null);
   const [payment, setPayment] = useState<PaymentInfo | null>(null);
   const [placing, setPlacing] = useState(false);
+  const [placeError, setPlaceError] = useState("");
 
   if (!user) {
     return (
@@ -49,7 +32,7 @@ export default function CheckoutPage() {
         <div className="bg-white border border-border rounded-sm p-10 flex flex-col items-center justify-center gap-4 text-center min-h-[360px]">
           <h1 className="text-2xl text-text">Sign in to check out</h1>
           <p className="text-text-secondary max-w-sm">
-            We need an account (mocked - no real backend) to attach an address and order history to.
+            We need an account to attach an address and order history to.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 mt-1">
             <Link href="/sign-in?redirect=/checkout">
@@ -109,36 +92,32 @@ export default function CheckoutPage() {
     );
   }
 
-  const shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : FLAT_SHIPPING;
-  const tax = Math.round(subtotal * TAX_RATE * 100) / 100;
+  const shipping = computeShipping(subtotal);
+  const tax = computeTax(subtotal);
   const total = subtotal + shipping + tax;
 
-  const handlePlaceOrder = () => {
-    if (!address || !payment) return;
+  const handlePlaceOrder = async () => {
+    if (!address || !payment || placing) return;
     setPlacing(true);
-    const order: Order = {
-      id: generateOrderId(),
-      userEmail: user.email,
-      placedAt: new Date().toISOString(),
-      items: items.map((i) => ({
-        productId: i.productId,
-        slug: i.slug,
-        title: i.title,
-        price: i.price,
-        icon: i.icon,
-        quantity: i.quantity,
-      })),
-      subtotal,
-      shipping,
-      tax,
-      total,
-      address,
-      cardLast4: payment.last4,
-      estimatedDelivery: formatDeliveryDate(3),
-    };
-    placeOrder(order);
-    clear();
-    router.push(`/checkout/confirmation/${order.id}`);
+    setPlaceError("");
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address, cardLast4: payment.last4 }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setPlaceError(data.error ?? "Something went wrong placing your order. Try again.");
+        setPlacing(false);
+        return;
+      }
+      clear();
+      router.push(`/checkout/confirmation/${data.orderId}`);
+    } catch {
+      setPlaceError("Something went wrong placing your order. Try again.");
+      setPlacing(false);
+    }
   };
 
   return (
@@ -182,24 +161,29 @@ export default function CheckoutPage() {
 
         <StepCard number={3} title="Review your order" active={step === 3} done={false} disabled={!address || !payment}>
           {address && payment && (
-            <OrderReview
-              address={address}
-              payment={payment}
-              items={items.map((i) => ({
-                productId: i.productId,
-                slug: i.slug,
-                title: i.title,
-                price: i.price,
-                icon: i.icon,
-                quantity: i.quantity,
-              }))}
-              subtotal={subtotal}
-              shipping={shipping}
-              tax={tax}
-              total={total}
-              onPlaceOrder={handlePlaceOrder}
-              placing={placing}
-            />
+            <>
+              <OrderReview
+                address={address}
+                payment={payment}
+                items={items.map((i) => ({
+                  productId: i.productId,
+                  slug: i.slug,
+                  title: i.title,
+                  price: i.price,
+                  icon: i.icon,
+                  category: i.category,
+                  photos: i.photos,
+                  quantity: i.quantity,
+                }))}
+                subtotal={subtotal}
+                shipping={shipping}
+                tax={tax}
+                total={total}
+                onPlaceOrder={handlePlaceOrder}
+                placing={placing}
+              />
+              {placeError && <p className="text-price text-sm mt-2">{placeError}</p>}
+            </>
           )}
         </StepCard>
       </div>

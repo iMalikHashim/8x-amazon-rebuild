@@ -1,18 +1,20 @@
-"use client";
-
-import { use } from "react";
 import Link from "next/link";
+import { eq } from "drizzle-orm";
 import { ChevronLeft } from "lucide-react";
-import { useAuth } from "@/lib/auth-context";
-import { useOrders } from "@/lib/orders-context";
+import { db } from "@/lib/db";
+import { orders } from "@/lib/db/schema";
+import { getCurrentUser } from "@/lib/session";
+import { toClientOrder } from "@/lib/orders-db";
 import { OrderSummaryCard } from "@/components/account/OrderSummaryCard";
 
-export default function OrderDetailPage({ params }: { params: Promise<{ orderId: string }> }) {
-  const { orderId } = use(params);
-  const { user } = useAuth();
-  const { getOrder } = useOrders();
-  const order = getOrder(orderId);
-  const owned = order && user && order.userEmail.toLowerCase() === user.email.toLowerCase();
+export default async function OrderDetailPage({ params }: { params: Promise<{ orderId: string }> }) {
+  const { orderId } = await params;
+  const user = await getCurrentUser();
+
+  const row = user
+    ? await db.query.orders.findFirst({ where: eq(orders.id, orderId), with: { items: true } })
+    : undefined;
+  const owned = row && user && row.userId === user.id;
 
   return (
     <div className="max-w-[900px] mx-auto px-2 sm:px-3 py-4 flex flex-col gap-4">
@@ -20,16 +22,16 @@ export default function OrderDetailPage({ params }: { params: Promise<{ orderId:
         <ChevronLeft size={16} /> Back to orders
       </Link>
 
-      {!order ? (
-        <p className="text-text-secondary">We can&apos;t find that order in this browser.</p>
+      {!row ? (
+        <p className="text-text-secondary">We can&apos;t find that order.</p>
       ) : !owned ? (
         <p className="text-text-secondary">
           This order belongs to a different account. Sign in as that account to view it.
         </p>
       ) : (
         <>
-          <h1 className="text-2xl text-text">Order {order.id}</h1>
-          <OrderSummaryCard order={order} />
+          <h1 className="text-2xl text-text">Order {row.id}</h1>
+          <OrderSummaryCard order={toClientOrder(row, user!.email)} />
         </>
       )}
     </div>

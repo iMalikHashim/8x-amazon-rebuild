@@ -8,6 +8,8 @@ import { ReviewsSection } from "@/components/pdp/ReviewsSection";
 import { CarouselRow } from "@/components/ui/CarouselRow";
 import { ProductCard } from "@/components/product/ProductCard";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const product = await getProductBySlug(slug);

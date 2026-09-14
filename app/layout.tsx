@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
-import { OrdersProvider } from "@/lib/orders-context";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 
@@ -22,11 +21,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">
         <AuthProvider>
           <CartProvider>
-            <OrdersProvider>
-              <Header />
-              <main className="flex-1 bg-page-bg">{children}</main>
-              <Footer />
-            </OrdersProvider>
+            <Header />
+            <main className="flex-1 bg-page-bg">{children}</main>
+            <Footer />
           </CartProvider>
         </AuthProvider>
       </body>

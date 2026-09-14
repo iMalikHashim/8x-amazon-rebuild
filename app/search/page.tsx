@@ -4,6 +4,8 @@ import { ProductCard } from "@/components/product/ProductCard";
 import { SortSelect } from "@/components/search/SortSelect";
 import { RatingStars } from "@/components/ui/RatingStars";
 
+export const dynamic = "force-dynamic";
+
 const RATING_OPTIONS = [4, 3, 2, 1];
 
 type RawSearchParams = Record<string, string | string[] | undefined>;

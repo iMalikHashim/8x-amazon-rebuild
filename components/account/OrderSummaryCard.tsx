@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { ProductImage } from "@/components/product/ProductImage";
-import { ProductArt } from "@/components/product/ProductArt";
 import { formatUsd } from "@/lib/format";
-import { products } from "@/data/products";
 import type { Order } from "@/lib/types";
 
 export function OrderSummaryCard({ order }: { order: Order }) {
@@ -34,27 +32,20 @@ export function OrderSummaryCard({ order }: { order: Order }) {
       </div>
 
       <div className="p-4 flex flex-col gap-3">
-        {order.items.map((item) => {
-          const fullProduct = products.find((p) => p.id === item.productId);
-          return (
-            <Link
-              key={item.productId}
-              href={`/product/${item.slug}`}
-              className="flex gap-3 items-center hover:bg-page-bg -mx-2 px-2 py-1 rounded-sm"
-            >
-              {fullProduct ? (
-                <ProductImage product={fullProduct} className="w-16 h-16 rounded-sm shrink-0" sizes="64px" />
-              ) : (
-                <ProductArt icon={item.icon} category="Electronics" className="w-16 h-16 rounded-sm shrink-0" />
-              )}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm line-clamp-1">{item.title}</p>
-                <p className="text-xs text-text-secondary">Qty: {item.quantity}</p>
-              </div>
-              <p className="text-sm font-medium shrink-0">{formatUsd(item.price * item.quantity)}</p>
-            </Link>
-          );
-        })}
+        {order.items.map((item) => (
+          <Link
+            key={item.productId}
+            href={`/product/${item.slug}`}
+            className="flex gap-3 items-center hover:bg-page-bg -mx-2 px-2 py-1 rounded-sm"
+          >
+            <ProductImage product={item} className="w-16 h-16 rounded-sm shrink-0" sizes="64px" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm line-clamp-1">{item.title}</p>
+              <p className="text-xs text-text-secondary">Qty: {item.quantity}</p>
+            </div>
+            <p className="text-sm font-medium shrink-0">{formatUsd(item.price * item.quantity)}</p>
+          </Link>
+        ))}
       </div>
     </div>
   );

@@ -1,28 +1,31 @@
-"use client";
-
-import { use } from "react";
 import Link from "next/link";
+import { eq } from "drizzle-orm";
 import { CheckCircle2 } from "lucide-react";
-import { useOrders } from "@/lib/orders-context";
+import { db } from "@/lib/db";
+import { orders } from "@/lib/db/schema";
+import { getCurrentUser } from "@/lib/session";
+import { toClientOrder } from "@/lib/orders-db";
 import { Button } from "@/components/ui/Button";
 import { OrderSummaryCard } from "@/components/account/OrderSummaryCard";
 
-export default function OrderConfirmationPage({
+export default async function OrderConfirmationPage({
   params,
 }: {
   params: Promise<{ orderId: string }>;
 }) {
-  const { orderId } = use(params);
-  const { getOrder } = useOrders();
-  const order = getOrder(orderId);
+  const { orderId } = await params;
+  const user = await getCurrentUser();
 
-  if (!order) {
+  const row = user
+    ? await db.query.orders.findFirst({ where: eq(orders.id, orderId), with: { items: true } })
+    : undefined;
+  const owned = row && user && row.userId === user.id;
+
+  if (!row || !owned) {
     return (
       <div className="max-w-[800px] mx-auto px-2 sm:px-3 py-12 text-center flex flex-col items-center gap-4">
-        <h1 className="text-2xl text-text">We can't find that order</h1>
-        <p className="text-text-secondary">
-          It may have been placed in a different browser session, since orders are stored locally.
-        </p>
+        <h1 className="text-2xl text-text">We can&apos;t find that order</h1>
+        <p className="text-text-secondary">It may belong to a different account.</p>
         <Link href="/account/orders">
           <Button variant="cta" className="px-6 py-2 font-medium">
             View order history
@@ -31,6 +34,8 @@ export default function OrderConfirmationPage({
       </div>
     );
   }
+
+  const order = toClientOrder(row, user!.email);
 
   return (
     <div className="max-w-[800px] mx-auto px-2 sm:px-3 py-8 flex flex-col gap-5">
