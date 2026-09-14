@@ -148,6 +148,69 @@ existing `model: <synthetic>` occurrences in
 correction, not a content edit - the prompt/response text in that file is
 untouched).
 
+## Update: a Neon credential was captured verbatim, and rotated
+
+**What leaked.** On 2026-09-14, a prompt pasted the project's Neon
+`DATABASE_URL` (a pooled Postgres connection string, password included) as
+part of a message asking the agent to run Neon's own CLI setup. The
+`UserPromptSubmit` hook captured that prompt verbatim, as designed - it has
+no way to distinguish a secret from any other text - and wrote it into
+`.agent-logs/2026-09-14_09-39-59_749fd4bf-....md`, committed in
+`bb2dad89aa5611a810e24d707026123074dd4530` ("Capture log growth") on the
+`backend` branch.
+
+**It did not reach a public surface.** Checked with a live (non-cached)
+`git ls-remote origin`: the only ref ever pushed to GitHub is
+`refs/heads/main`, and the leaking commit is on `backend`, which has never
+been pushed - confirmed with `git merge-base --is-ancestor`, it is not an
+ancestor of `main`. `iMalikHashim/8x-amazon-rebuild` is a public repo, but
+the credential itself was never part of anything GitHub, or anyone other
+than this local machine, could see.
+
+**The log entry is left untouched.** Per instruction, and because the spec
+forbids rewriting captured entries: the fix here is rotating the
+credential, not editing history to hide that it was ever typed.
+
+**Rotation.** The Neon console's "Reset password" was used to generate a
+new password for the `neondb_owner` role (same project, branch, host,
+database - only the password changed). The new connection string was
+confirmed to work by running a live query against the database. Local
+`.env` and the Vercel `Preview` and `Development` environment variables
+were updated to it; `Production` is intentionally left unset until
+`backend` merges.
+
+**Open finding, not yet resolved:** a direct connection attempt using the
+*old* (leaked) password still authenticates successfully as of this
+writing, including after a 20-second wait to rule out a simple
+propagation delay. The new password is confirmed genuinely different (byte
+comparison) and working, so this isn't a case of the rotation not being
+saved - the old credential appears to simply not have been invalidated yet
+on Neon's side. This needs a follow-up check in the Neon console (or with
+Neon support) before the credential can be considered fully dead; nothing
+in this repo depends on that check to be safe, since every consumer
+(local `.env`, Vercel) has already moved to the new value.
+
+## Update: hook fix - secrets are now redacted before they're written
+
+`capture.py` now runs `redact_secrets()` over both the prompt and the
+response text before either is written to disk. It fully replaces (not
+partially masks) database connection strings (`postgres://`,
+`postgresql://`, `mysql://`, `mongodb(+srv)://`), well-known API key/token
+shapes (Neon, AWS, GitHub, Slack, Stripe, OpenAI/Anthropic, JWTs), and
+generic `key=value`/`token:`/`password=`-style assignments whose value
+contains a digit (real secrets almost always do; this keeps ordinary code
+like `password: password.trim()` untouched).
+
+Proven in `.claude/hooks/test_capture_redaction.py` - 19 checks, including
+an end-to-end one that invokes the real hook binary via stdin exactly as
+Claude Code does, using the exact shape of the URL that leaked, and reads
+back the file it wrote to confirm the secret never reaches disk. All pass.
+
+Applied to both branches: committed on `backend`
+(`5561f5c`), cherry-picked onto `main` (`eeefff0`) since the hook only
+protects whichever branch happens to be checked out, and pushed to
+`origin/main` - `main` did not contain the leak, and now carries the fix.
+
 ## Other verification performed
 
 - `git check-ignore` confirms `.agent-logs/*.md` is **not** ignored;
