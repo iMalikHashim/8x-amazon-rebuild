@@ -191,7 +191,7 @@ export const products: Product[] = [
     description:
       "A 27-inch curved QHD monitor with a 144Hz refresh rate for smooth, immersive gameplay.",
     icon: "Monitor",
-    photos: ["1547082299-de196ea013d6", "1527443224154-c4a3942d3acf", "1593640408182-31c70c8268f5", "1547658719-da2b51169166"],
+    photos: ["1614179924047-e1ab49a0a0cf", "1527443224154-c4a3942d3acf", "1593640408182-31c70c8268f5", "1547658719-da2b51169166"],
   },
   {
     id: "p010",
@@ -235,7 +235,7 @@ export const products: Product[] = [
     description:
       "The best-selling multi-cooker that replaces seven kitchen appliances and cooks meals up to 70% faster.",
     icon: "CookingPot",
-    photos: ["1585515320310-259814833e62", "1585237017125-24baf8d7406f", "1556911220-bff31c812dba", "1556909114-f6e7ad7d3136"],
+    photos: ["1544233726-9f1d2b27be8b", "1585237017125-24baf8d7406f", "1556911220-bff31c812dba", "1556909114-f6e7ad7d3136"],
   },
   {
     id: "p012",
@@ -403,7 +403,7 @@ export const products: Product[] = [
     description:
       "A 50-count set of pre-sharpened, break-resistant colored pencils for school and art projects.",
     icon: "Pencil",
-    photos: ["1541961017774-22349e4a1262", "1513364776144-60967b0f800f", "1546521343-4eb2c01aa44b", "1503676260728-1c00da094a0b"],
+    photos: ["1513542789411-b6a5d4f31634", "1513364776144-60967b0f800f", "1546521343-4eb2c01aa44b", "1503676260728-1c00da094a0b"],
   },
   {
     id: "p020",
@@ -466,7 +466,7 @@ export const products: Product[] = [
     description:
       "The redesigned Xbox controller, with a sculpted shape and Bluetooth connectivity for console, PC, and mobile.",
     icon: "Joystick",
-    photos: ["1592840062661-a5a7f78e2056", "1580327344181-c1163234e5a0", "1621259182978-fbf93132d53d", "1550745165-9bc0b252726f"],
+    photos: ["1604586376807-f73185cf5867", "1580327344181-c1163234e5a0", "1621259182978-fbf93132d53d", "1550745165-9bc0b252726f"],
   },
   {
     id: "p023",
@@ -804,7 +804,7 @@ export const products: Product[] = [
     description:
       "A GPS-equipped fitness tracker with 24/7 heart rate tracking and up to 7 days of battery life.",
     icon: "Watch",
-    photos: ["1544117519-31a4b719223d", "1508685096489-7aacd43bd3b1", "1517649763962-0c623066013b", "1517836357463-d25dfeac3438"],
+    photos: ["1557935728-e6d1eaabe558", "1548098526-5478fa3ab3ce", "1548098527-c4a916dcd948", "1557935728-e6d1eaabe558"],
   },
   {
     id: "p039",
