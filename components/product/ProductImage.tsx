@@ -7,7 +7,9 @@ import { unsplashUrl } from "@/lib/unsplash";
 import type { Product } from "@/lib/types";
 
 interface ProductImageProps {
-  product: Product;
+  /** Only these fields are used - accepts a full Product or a lighter
+   * snapshot (CartItem, OrderItem) without needing a live product lookup. */
+  product: Pick<Product, "title" | "icon" | "category" | "photos">;
   /** Which entry in product.photos to show - defaults to the primary photo. */
   index?: number;
   className?: string;

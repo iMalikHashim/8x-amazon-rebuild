@@ -10,7 +10,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_PASSWORD_LENGTH = 8;
 
 function SignUpForm() {
-  const { signUp, emailExists } = useAuth();
+  const { signUp } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
@@ -27,33 +27,34 @@ function SignUpForm() {
     if (!name.trim()) e.name = "Enter your name.";
     if (!email.trim()) e.email = "Enter your email.";
     else if (!EMAIL_RE.test(email.trim())) e.email = "Enter a valid email address.";
-    else if (emailExists(email.trim())) e.email = "An account with this email already exists.";
     if (!password) e.password = `Enter a password.`;
     else if (password.length < MIN_PASSWORD_LENGTH) e.password = `Use at least ${MIN_PASSWORD_LENGTH} characters.`;
     if (!confirm) e.confirm = "Confirm your password.";
     else if (confirm !== password) e.confirm = "Passwords don't match.";
     return e;
-  }, [name, email, password, confirm, emailExists]);
+  }, [name, email, password, confirm]);
 
   const isValid = Object.keys(errors).length === 0;
 
   const touch = (field: string) => setTouched((t) => ({ ...t, [field]: true }));
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
     setTouched({ name: true, email: true, password: true, confirm: true });
     if (!isValid) return;
 
     setSubmitting(true);
-    const result = signUp(name.trim(), email.trim(), password);
+    setFormError("");
+    const result = await signUp(name.trim(), email.trim(), password);
     if (!result.ok) {
       setFormError(result.error);
       setSubmitting(false);
       return;
     }
     router.push(redirectTo);
+    router.refresh();
   };
 
   return (
@@ -132,8 +133,8 @@ function SignUpForm() {
         </Button>
 
         <p className="text-xs text-text-secondary">
-          Mocked account creation for a portfolio rebuild - stored in this browser&apos;s localStorage
-          only, passwords are not hashed, and nothing is sent anywhere. See the README for details.
+          Your account is real and persisted in a database (password hashed, never stored in plain
+          text). Checkout and payment on this rebuild are still simulated - see the README for details.
         </p>
       </form>
 

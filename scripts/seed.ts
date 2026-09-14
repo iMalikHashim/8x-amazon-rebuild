@@ -1,20 +1,15 @@
-import type { Product } from "@/lib/types";
-
-export interface ReviewHistogramEntry {
-  stars: number;
-  percent: number;
-}
-
-export interface SyntheticReview {
-  id: string;
-  author: string;
-  rating: number;
-  date: string;
-  title: string;
-  body: string;
-  verified: boolean;
-  helpful: number;
-}
+/**
+ * Seeds the Neon database from data/products.ts. Safe to re-run: clears
+ * products/reviews first (cart_items/order_items/orders cascade-delete
+ * off products, so this also wipes any test orders - fine for a seed
+ * script, never run this against data you want to keep).
+ *
+ * Usage: npm run db:seed
+ */
+import "dotenv/config";
+import { db } from "../lib/db";
+import { products, reviews } from "../lib/db/schema";
+import { products as fixtureProducts } from "../data/products";
 
 const REVIEWERS = [
   "Alex M.", "Jordan P.", "Sam K.", "Taylor R.", "Morgan B.",
@@ -44,16 +39,6 @@ const BODIES_NEGATIVE = [
   "Had to exchange the first unit; the replacement has been fine so far.",
 ];
 
-/** Deterministic shuffle so a product's reviews stay stable across renders. */
-function shuffled<T>(arr: T[], rand: () => number): T[] {
-  const copy = [...arr];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [copy[i], copy[j]] = [copy[j], copy[i]];
-  }
-  return copy;
-}
-
 function hashString(str: string): number {
   let h = 0;
   for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
@@ -68,26 +53,17 @@ function seededRandom(seed: number) {
   };
 }
 
-export function getRatingHistogram(rating: number): ReviewHistogramEntry[] {
-  const t = Math.max(0, Math.min(1, (rating - 1) / 4));
-  const w5 = 5 + 60 * t ** 2;
-  const w4 = 10 + 20 * t;
-  const w3 = 30 - 20 * Math.abs(t - 0.5) * 2;
-  const w2 = 10 + 15 * (1 - t);
-  const w1 = 5 + 40 * (1 - t) ** 2;
-  const total = w5 + w4 + w3 + w2 + w1;
-  const pct = (w: number) => Math.round((w / total) * 100);
-  return [
-    { stars: 5, percent: pct(w5) },
-    { stars: 4, percent: pct(w4) },
-    { stars: 3, percent: pct(w3) },
-    { stars: 2, percent: pct(w2) },
-    { stars: 1, percent: pct(w1) },
-  ];
+function shuffled<T>(arr: T[], rand: () => number): T[] {
+  const copy = [...arr];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
 }
 
-export function getSyntheticReviews(product: Product, count = 5): SyntheticReview[] {
-  const rand = seededRandom(hashString(product.id));
+function syntheticReviewsFor(productId: string, count = 5) {
+  const rand = seededRandom(hashString(productId));
   const authors = shuffled(REVIEWERS, rand);
   const posTitles = shuffled(TITLES_POSITIVE, rand);
   const posBodies = shuffled(BODIES_POSITIVE, rand);
@@ -100,7 +76,7 @@ export function getSyntheticReviews(product: Product, count = 5): SyntheticRevie
   let mixedCursor = 0;
   let negCursor = 0;
 
-  const reviews: SyntheticReview[] = [];
+  const out = [];
   for (let i = 0; i < count; i++) {
     const roll = rand();
     let rating: number;
@@ -128,17 +104,62 @@ export function getSyntheticReviews(product: Product, count = 5): SyntheticRevie
       negCursor++;
     }
     const daysAgo = 3 + Math.floor(rand() * 340);
-    const date = new Date(Date.now() - daysAgo * 86400000);
-    reviews.push({
-      id: `${product.id}-r${i}`,
-      author: authors[i % authors.length],
+    const createdAt = new Date(Date.now() - daysAgo * 86400000);
+    out.push({
+      authorName: authors[i % authors.length],
       rating,
-      date: date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }),
       title,
       body,
       verified: rand() > 0.2,
       helpful: Math.floor(rand() * 120),
+      createdAt,
     });
   }
-  return reviews;
+  return out;
 }
+
+async function main() {
+  console.log(`Seeding ${fixtureProducts.length} products...`);
+
+  await db.delete(reviews);
+  await db.delete(products);
+
+  await db.insert(products).values(
+    fixtureProducts.map((p) => ({
+      id: p.id,
+      slug: p.slug,
+      title: p.title,
+      brand: p.brand,
+      category: p.category,
+      price: p.price,
+      listPrice: p.listPrice ?? null,
+      rating: p.rating,
+      reviewCount: p.reviewCount,
+      prime: p.prime,
+      bullets: p.bullets,
+      description: p.description,
+      icon: p.icon,
+      photos: p.photos ?? null,
+    }))
+  );
+  console.log("Products inserted.");
+
+  const reviewRows = fixtureProducts.flatMap((p) =>
+    syntheticReviewsFor(p.id, 5).map((r) => ({
+      productId: p.id,
+      userId: null,
+      ...r,
+    }))
+  );
+  await db.insert(reviews).values(reviewRows);
+  console.log(`Inserted ${reviewRows.length} seed reviews.`);
+
+  console.log("Done.");
+}
+
+main()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });

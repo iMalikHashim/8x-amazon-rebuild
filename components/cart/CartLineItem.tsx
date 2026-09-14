@@ -2,25 +2,18 @@
 
 import Link from "next/link";
 import { ProductImage } from "@/components/product/ProductImage";
-import { ProductArt } from "@/components/product/ProductArt";
 import { formatUsd } from "@/lib/format";
 import { useCart, type CartItem } from "@/lib/cart-context";
-import { products } from "@/data/products";
 
 const QUANTITIES = Array.from({ length: 10 }, (_, i) => i + 1);
 
 export function CartLineItem({ item }: { item: CartItem }) {
   const { setQuantity, removeItem, saveForLater } = useCart();
-  const fullProduct = products.find((p) => p.id === item.productId);
 
   return (
     <div className="flex gap-4 py-4 border-b border-border last:border-b-0">
       <Link href={`/product/${item.slug}`} className="w-24 sm:w-32 shrink-0">
-        {fullProduct ? (
-          <ProductImage product={fullProduct} className="rounded-sm" sizes="128px" />
-        ) : (
-          <ProductArt icon={item.icon} category="Electronics" className="rounded-sm" />
-        )}
+        <ProductImage product={item} className="rounded-sm" sizes="128px" />
       </Link>
 
       <div className="flex-1 flex flex-col gap-1 min-w-0">

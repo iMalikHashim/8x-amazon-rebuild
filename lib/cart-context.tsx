@@ -6,10 +6,12 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
-import type { Product } from "@/lib/types";
+import { useAuth } from "@/lib/auth-context";
+import type { Category, Product, ProductIconKey } from "@/lib/types";
 
 export interface CartItem {
   productId: string;
@@ -17,7 +19,9 @@ export interface CartItem {
   title: string;
   price: number;
   listPrice?: number;
-  icon: Product["icon"];
+  icon: ProductIconKey;
+  category: Category;
+  photos?: string[];
   quantity: number;
 }
 
@@ -46,6 +50,8 @@ function toCartItem(product: Product, quantity: number): CartItem {
     price: product.price,
     listPrice: product.listPrice,
     icon: product.icon,
+    category: product.category,
+    photos: product.photos,
     quantity,
   };
 }
@@ -58,15 +64,12 @@ function cartReducer(state: CartState, action: CartAction): CartState {
         return {
           ...state,
           items: state.items.map((i) =>
-            i.productId === action.product.id
-              ? { ...i, quantity: i.quantity + action.quantity }
-              : i
+            i.productId === action.product.id ? { ...i, quantity: i.quantity + action.quantity } : i
           ),
         };
       }
       return {
         ...state,
-        // adding an item you'd previously saved for later moves it back to the cart
         saved: state.saved.filter((i) => i.productId !== action.product.id),
         items: [...state.items, toCartItem(action.product, action.quantity)],
       };
@@ -123,32 +126,77 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
+async function fetchDbCart(): Promise<CartState> {
+  const res = await fetch("/api/cart");
+  const data = await res.json().catch(() => ({ items: [], saved: [] }));
+  return { items: data.items ?? [], saved: data.saved ?? [] };
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { user, ready: authReady } = useAuth();
   const [state, dispatch] = useReducer(cartReducer, { items: [], saved: [] });
-  // Guards the persist effect below: without it, the effect fires once
-  // with the reducer's pre-hydration empty state (same commit as the
-  // hydration effect, before its dispatch is applied) and overwrites
-  // real localStorage data with {items:[],saved:[]} - found by testing
-  // the add-to-cart -> navigate -> view-cart flow end to end, where a
-  // second product page load silently wiped the first item.
   const [hydrated, setHydrated] = useState(false);
+  // "guest" persists to localStorage; "db" fires API calls on every mutation.
+  // A ref (not state) because mutation handlers below read it synchronously
+  // and shouldn't re-render just because the mode flipped.
+  const mode = useRef<"guest" | "db">("guest");
+  const previousUserId = useRef<string | null>(null);
 
   useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        dispatch({ type: "HYDRATE", state: { items: parsed.items ?? [], saved: parsed.saved ?? [] } });
-      }
-    } catch {
-      // localStorage unavailable - cart just starts empty
-    } finally {
-      setHydrated(true);
+    if (!authReady) return;
+
+    if (user) {
+      const wasGuest = previousUserId.current === null;
+      mode.current = "db";
+      (async () => {
+        if (wasGuest) {
+          try {
+            const raw = window.localStorage.getItem(STORAGE_KEY);
+            const guest: CartState = raw ? JSON.parse(raw) : { items: [], saved: [] };
+            const toMerge = [...guest.items, ...guest.saved].map((i) => ({
+              productId: i.productId,
+              quantity: i.quantity,
+            }));
+            if (toMerge.length > 0) {
+              await fetch("/api/cart/merge", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ items: toMerge }),
+              });
+            }
+          } catch (err) {
+            console.error("Cart merge failed:", err);
+          }
+          try {
+            window.localStorage.removeItem(STORAGE_KEY);
+          } catch {
+            // ignore
+          }
+        }
+        try {
+          dispatch({ type: "HYDRATE", state: await fetchDbCart() });
+        } catch (err) {
+          console.error("Failed to load cart:", err);
+        }
+        setHydrated(true);
+      })();
+    } else {
+      mode.current = "guest";
+      queueMicrotask(() => {
+        try {
+          const raw = window.localStorage.getItem(STORAGE_KEY);
+          if (raw) dispatch({ type: "HYDRATE", state: JSON.parse(raw) });
+        } catch {
+          // localStorage unavailable - cart just starts empty
+        }
+        setHydrated(true);
+      });
     }
-  }, []);
+    previousUserId.current = user?.id ?? null;
+  }, [user, authReady]);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || mode.current !== "guest") return;
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch {
@@ -156,20 +204,61 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [state, hydrated]);
 
+  const syncItem = (productId: string, body: Record<string, unknown>) => {
+    if (mode.current !== "db") return;
+    fetch(`/api/cart/items/${encodeURIComponent(productId)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    }).catch((err) => console.error("Cart sync failed:", err));
+  };
+
+  const deleteItem = (productId: string) => {
+    if (mode.current !== "db") return;
+    fetch(`/api/cart/items/${encodeURIComponent(productId)}`, { method: "DELETE" }).catch((err) =>
+      console.error("Cart sync failed:", err)
+    );
+  };
+
   const value = useMemo<CartContextValue>(() => {
     const count = state.items.reduce((sum, i) => sum + i.quantity, 0);
     const subtotal = state.items.reduce((sum, i) => sum + i.quantity * i.price, 0);
+
     return {
       items: state.items,
       saved: state.saved,
       count,
       subtotal,
-      addItem: (product, quantity = 1) => dispatch({ type: "ADD_ITEM", product, quantity }),
-      removeItem: (productId) => dispatch({ type: "REMOVE_ITEM", productId }),
-      setQuantity: (productId, quantity) => dispatch({ type: "SET_QUANTITY", productId, quantity }),
-      saveForLater: (productId) => dispatch({ type: "SAVE_FOR_LATER", productId }),
-      moveToCart: (productId) => dispatch({ type: "MOVE_TO_CART", productId }),
-      removeSaved: (productId) => dispatch({ type: "REMOVE_SAVED", productId }),
+      addItem: (product, quantity = 1) => {
+        dispatch({ type: "ADD_ITEM", product, quantity });
+        if (mode.current === "db") {
+          fetch("/api/cart/items", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId: product.id, quantity }),
+          }).catch((err) => console.error("Cart sync failed:", err));
+        }
+      },
+      removeItem: (productId) => {
+        dispatch({ type: "REMOVE_ITEM", productId });
+        deleteItem(productId);
+      },
+      setQuantity: (productId, quantity) => {
+        dispatch({ type: "SET_QUANTITY", productId, quantity });
+        syncItem(productId, { quantity });
+      },
+      saveForLater: (productId) => {
+        dispatch({ type: "SAVE_FOR_LATER", productId });
+        syncItem(productId, { savedForLater: true });
+      },
+      moveToCart: (productId) => {
+        dispatch({ type: "MOVE_TO_CART", productId });
+        syncItem(productId, { savedForLater: false });
+      },
+      removeSaved: (productId) => {
+        dispatch({ type: "REMOVE_SAVED", productId });
+        deleteItem(productId);
+      },
       clear: () => dispatch({ type: "CLEAR" }),
     };
   }, [state]);

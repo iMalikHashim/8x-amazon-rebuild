@@ -1,13 +1,13 @@
-"use client";
-
 import Link from "next/link";
-import { useAuth } from "@/lib/auth-context";
-import { useOrders } from "@/lib/orders-context";
+import { desc, eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { orders } from "@/lib/db/schema";
+import { getCurrentUser } from "@/lib/session";
 import { Button } from "@/components/ui/Button";
+import { SignOutButton } from "@/components/account/SignOutButton";
 
-export default function AccountPage() {
-  const { user, signOut } = useAuth();
-  const { orders } = useOrders();
+export default async function AccountPage() {
+  const user = await getCurrentUser();
 
   if (!user) {
     return (
@@ -29,8 +29,17 @@ export default function AccountPage() {
     );
   }
 
-  const myOrders = orders.filter((o) => o.userEmail.toLowerCase() === user.email.toLowerCase());
-  const savedAddress = myOrders[0]?.address;
+  const myOrders = await db.select().from(orders).where(eq(orders.userId, user.id)).orderBy(desc(orders.placedAt));
+  const savedAddress = myOrders[0]
+    ? {
+        fullName: myOrders[0].addressFullName,
+        line1: myOrders[0].addressLine1,
+        line2: myOrders[0].addressLine2 ?? undefined,
+        city: myOrders[0].addressCity,
+        state: myOrders[0].addressState,
+        zip: myOrders[0].addressZip,
+      }
+    : null;
 
   return (
     <div className="max-w-[700px] mx-auto px-2 sm:px-3 py-4 flex flex-col gap-4">
@@ -46,9 +55,7 @@ export default function AccountPage() {
           <p className="text-text-secondary text-xs">Email</p>
           <p className="text-text">{user.email}</p>
         </div>
-        <Button type="button" variant="secondary" onClick={() => signOut()} className="w-fit px-4 py-1.5 mt-2">
-          Sign out
-        </Button>
+        <SignOutButton />
       </div>
 
       <div className="bg-white border border-border rounded-sm p-5">
@@ -77,7 +84,9 @@ export default function AccountPage() {
       >
         <h2 className="font-bold text-text">Your Orders</h2>
         <p className="text-sm text-text-secondary mt-1">
-          {myOrders.length > 0 ? `${myOrders.length} order${myOrders.length === 1 ? "" : "s"} placed.` : "Track, view, or manage your recent orders."}
+          {myOrders.length > 0
+            ? `${myOrders.length} order${myOrders.length === 1 ? "" : "s"} placed.`
+            : "Track, view, or manage your recent orders."}
         </p>
       </Link>
     </div>

@@ -4,6 +4,8 @@ import { CarouselRow } from "@/components/ui/CarouselRow";
 import { ProductCard } from "@/components/product/ProductCard";
 import { getHomeRows } from "@/lib/catalog";
 
+export const dynamic = "force-dynamic";
+
 const PROMO_CARDS: PromoCardProps[] = [
   {
     title: "Get your game on",

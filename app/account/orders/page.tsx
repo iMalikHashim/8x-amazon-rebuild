@@ -1,14 +1,13 @@
-"use client";
-
 import Link from "next/link";
-import { useAuth } from "@/lib/auth-context";
-import { useOrders } from "@/lib/orders-context";
+import { desc, eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { orders } from "@/lib/db/schema";
+import { getCurrentUser } from "@/lib/session";
 import { formatUsd } from "@/lib/format";
 import { Button } from "@/components/ui/Button";
 
-export default function OrdersPage() {
-  const { user } = useAuth();
-  const { orders } = useOrders();
+export default async function OrdersPage() {
+  const user = await getCurrentUser();
 
   if (!user) {
     return (
@@ -30,7 +29,7 @@ export default function OrdersPage() {
     );
   }
 
-  const myOrders = orders.filter((o) => o.userEmail.toLowerCase() === user.email.toLowerCase());
+  const myOrders = await db.select().from(orders).where(eq(orders.userId, user.id)).orderBy(desc(orders.placedAt));
 
   return (
     <div className="max-w-[900px] mx-auto px-2 sm:px-3 py-4 flex flex-col gap-4">
@@ -48,7 +47,7 @@ export default function OrdersPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {myOrders.map((order) => {
-            const placedDate = new Date(order.placedAt).toLocaleDateString("en-US", {
+            const placedDate = order.placedAt.toLocaleDateString("en-US", {
               year: "numeric",
               month: "short",
               day: "numeric",

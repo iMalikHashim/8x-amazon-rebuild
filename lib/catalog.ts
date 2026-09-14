@@ -1,22 +1,59 @@
-import { products } from "@/data/products";
-import type { Category, Product } from "@/lib/types";
+import { eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { products as productsTable } from "@/lib/db/schema";
+import type { Category, Product, ProductIconKey } from "@/lib/types";
+
+function rowToProduct(row: typeof productsTable.$inferSelect): Product {
+  return {
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    brand: row.brand,
+    category: row.category as Category,
+    price: row.price,
+    listPrice: row.listPrice ?? undefined,
+    rating: row.rating,
+    reviewCount: row.reviewCount,
+    prime: row.prime,
+    bullets: row.bullets,
+    description: row.description,
+    icon: row.icon as ProductIconKey,
+    photos: row.photos ?? undefined,
+  };
+}
+
+/**
+ * The whole catalog is ~40 rows, so every query here fetches the full
+ * table once and filters/sorts in JS - the same relevance-scoring and
+ * sort logic as before the DB migration, just backed by Postgres instead
+ * of the static array. This keeps the query surface small and behavior
+ * identical; hand-written SQL per filter combination would be more
+ * "proper" at real scale but is unwarranted complexity here.
+ */
+async function fetchAllProducts(): Promise<Product[]> {
+  const rows = await db.select().from(productsTable);
+  return rows.map(rowToProduct);
+}
 
 export async function getProducts(): Promise<Product[]> {
-  return products;
+  return fetchAllProducts();
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | undefined> {
-  return products.find((p) => p.slug === slug);
+  const rows = await db.select().from(productsTable).where(eq(productsTable.slug, slug)).limit(1);
+  return rows[0] ? rowToProduct(rows[0]) : undefined;
 }
 
 export async function getProductsByCategory(category: Category): Promise<Product[]> {
-  return products.filter((p) => p.category === category);
+  const all = await fetchAllProducts();
+  return all.filter((p) => p.category === category);
 }
 
 export async function searchProducts(query: string): Promise<Product[]> {
+  const all = await fetchAllProducts();
   const q = query.trim().toLowerCase();
-  if (!q) return products;
-  return products.filter((p) => relevanceScore(p, q) > 0);
+  if (!q) return all;
+  return all.filter((p) => relevanceScore(p, q) > 0);
 }
 
 function relevanceScore(p: Product, q: string): number {
@@ -41,7 +78,7 @@ export interface SearchQuery {
 }
 
 export async function queryProducts(query: SearchQuery): Promise<Product[]> {
-  let results = [...products];
+  let results = await fetchAllProducts();
   const q = query.q?.trim().toLowerCase();
 
   if (q) {
@@ -88,18 +125,21 @@ export async function queryProducts(query: SearchQuery): Promise<Product[]> {
 }
 
 export async function getCategories(): Promise<Category[]> {
-  return Array.from(new Set(products.map((p) => p.category)));
+  const all = await fetchAllProducts();
+  return Array.from(new Set(all.map((p) => p.category)));
 }
 
 export async function getRelatedProducts(product: Product, limit = 8): Promise<Product[]> {
-  return products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, limit);
+  const all = await fetchAllProducts();
+  return all.filter((p) => p.category === product.category && p.id !== product.id).slice(0, limit);
 }
 
 /** Rows of products for the homepage, one per department. */
 export async function getHomeRows(): Promise<{ title: string; products: Product[] }[]> {
-  const categories = await getCategories();
+  const all = await fetchAllProducts();
+  const categories = Array.from(new Set(all.map((p) => p.category)));
   return categories.map((category) => ({
     title: category,
-    products: products.filter((p) => p.category === category),
+    products: all.filter((p) => p.category === category),
   }));
 }

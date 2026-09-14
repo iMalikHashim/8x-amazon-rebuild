@@ -63,6 +63,8 @@ export interface OrderItem {
   title: string;
   price: number;
   icon: ProductIconKey;
+  category: Category;
+  photos?: string[];
   quantity: number;
 }
 

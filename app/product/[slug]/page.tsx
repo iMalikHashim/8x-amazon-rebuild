@@ -7,6 +7,9 @@ import { BuyBox } from "@/components/pdp/BuyBox";
 import { ReviewsSection } from "@/components/pdp/ReviewsSection";
 import { CarouselRow } from "@/components/ui/CarouselRow";
 import { ProductCard } from "@/components/product/ProductCard";
+import { CompareCheckbox } from "@/components/compare/CompareCheckbox";
+
+export const dynamic = "force-dynamic";
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -36,6 +39,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           <a href="#reviews" className="flex items-center gap-2 w-fit">
             <RatingStars rating={product.rating} reviewCount={product.reviewCount} size={16} />
           </a>
+          <CompareCheckbox product={product} className="w-fit" />
           <hr className="border-border my-1" />
 
           <h2 className="font-bold text-base text-text mt-1">About this item</h2>
