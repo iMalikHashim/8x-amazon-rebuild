@@ -126,6 +126,28 @@ The broken entry in session 2's log file is left as-is, per instruction not
 to hand-edit or backfill captured entries. Everything captured from this
 point forward uses the fixed script.
 
+## Update: a second capture bug, found much later in the build
+
+While verifying the public GitHub repo during deployment, a raw fetch of
+this session's log showed `model: <synthetic>`instead of a real model
+name. Root cause: Claude Code injects synthetic, non-model transcript
+entries for harness events (in this case a session/rate-limit notice,
+`isApiErrorMessage: true`, text "You've hit your session limit..."), and
+these correctly self-label with `model: "<synthetic>"`. `get_model_from_transcript`
+scanned backward for the last assistant entry with *any* `model` field and
+didn't distinguish real completions from these injected ones, so it
+reported `<synthetic>` once one of these notices became the most recent
+assistant-typed entry.
+
+Checked whether this corrupted any captured response *text* (it did not -
+grepped every log file for the notice's text, found nothing) - only the
+`model:` metadata field was ever wrong. Fixed by skipping any model value
+shaped like `<...>` and continuing the backward scan. Corrected the two
+existing `model: <synthetic>` occurrences in
+`2026-09-14_09-39-59_749fd4bf-....md` to `claude-sonnet-5` (metadata
+correction, not a content edit - the prompt/response text in that file is
+untouched).
+
 ## Other verification performed
 
 - `git check-ignore` confirms `.agent-logs/*.md` is **not** ignored;

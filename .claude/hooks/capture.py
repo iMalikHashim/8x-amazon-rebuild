@@ -74,7 +74,10 @@ def get_model_from_transcript(transcript_path, fallback=DEFAULT_MODEL):
             except json.JSONDecodeError:
                 continue
             model = obj.get("message", {}).get("model")
-            if model:
+            # "<synthetic>" marks harness-injected entries that are not real
+            # model turns (e.g. a rate-limit notice) - skip past these to
+            # find the last *real* model name instead of reporting them.
+            if model and not (model.startswith("<") and model.endswith(">")):
                 return model
     except Exception as e:
         debug(f"get_model_from_transcript error: {e}")
