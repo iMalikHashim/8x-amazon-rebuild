@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart-context";
 import { Price } from "@/components/ui/Price";
@@ -17,11 +17,24 @@ export function BuyBox({ product }: { product: Product }) {
   const { addItem } = useCart();
   const router = useRouter();
 
-  const deliveryDate = new Date(Date.now() + 2 * 86400000).toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "short",
-    day: "numeric",
-  });
+  // Computed client-side only, after mount: the server and the browser can
+  // disagree on "now" (network latency between render and hydration) and on
+  // local timezone (server defaults to UTC, the visitor's browser doesn't),
+  // so evaluating this during render produced a genuine hydration mismatch
+  // (React error #418) on every real page load - confirmed live in
+  // production, isolated to this component specifically.
+  const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
+  useEffect(() => {
+    queueMicrotask(() => {
+      setDeliveryDate(
+        new Date(Date.now() + 2 * 86400000).toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "short",
+          day: "numeric",
+        })
+      );
+    });
+  }, []);
 
   const handleAddToCart = () => {
     if (busy) return;
@@ -48,7 +61,7 @@ export function BuyBox({ product }: { product: Product }) {
 
       <div className="text-sm border-t border-border pt-3">
         <p>
-          <span className="font-bold">FREE delivery</span> {deliveryDate}
+          <span className="font-bold">FREE delivery</span> {deliveryDate ?? ""}
         </p>
         <p className="text-text-secondary mt-1">
           Or fastest delivery tomorrow. Order within 4 hrs 12 mins.
