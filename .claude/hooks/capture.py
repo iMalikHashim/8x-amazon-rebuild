@@ -36,6 +36,57 @@ FIELD_ORDER = [
     "total_exchanges", "first_prompt_time", "last_prompt_time",
 ]
 
+# --- Secret redaction ---------------------------------------------------
+# Applied to every prompt and every response before it is written to disk,
+# so a pasted credential (e.g. a Neon DATABASE_URL) never reaches a file
+# that gets committed to a public repo. Added 2026-09-15 after exactly
+# that happened - see CAPTURE-TEST.md for the incident writeup.
+#
+# Matches are fully replaced, not partially masked: even a hostname or
+# username can be worth withholding, and there is no real downside to
+# being conservative in a log whose whole purpose is to be committed
+# publicly. False positives (redacting something that wasn't actually a
+# secret) are an acceptable tradeoff for that; false negatives are not.
+
+REDACTION_PATTERNS = [
+    # Database connection strings: postgres(ql)://, mysql://, mongodb(+srv)://
+    # - credentials, host, db name and query string all get dropped together.
+    (re.compile(r"\b(?:postgres(?:ql)?|mysql|mongodb(?:\+srv)?)://\S+", re.IGNORECASE),
+     "[REDACTED-DB-URL]"),
+
+    # Well-known API key / token shapes, regardless of surrounding context.
+    (re.compile(r"\bnpg_[A-Za-z0-9]{10,}\b"), "[REDACTED-SECRET]"),                # Neon
+    (re.compile(r"\bsk-ant-[A-Za-z0-9_-]{20,}\b"), "[REDACTED-SECRET]"),           # Anthropic
+    (re.compile(r"\bsk-[A-Za-z0-9]{20,}\b"), "[REDACTED-SECRET]"),                 # OpenAI-style
+    (re.compile(r"\bAKIA[0-9A-Z]{16}\b"), "[REDACTED-SECRET]"),                    # AWS access key id
+    (re.compile(r"\bgh[pousr]_[A-Za-z0-9]{20,}\b"), "[REDACTED-SECRET]"),          # GitHub tokens
+    (re.compile(r"\bxox[baprs]-[A-Za-z0-9-]{10,}\b"), "[REDACTED-SECRET]"),        # Slack tokens
+    (re.compile(r"\bsk_(?:live|test)_[A-Za-z0-9]{16,}\b"), "[REDACTED-SECRET]"),   # Stripe
+    (re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b"),
+     "[REDACTED-JWT]"),
+
+    # Generic "key/token/secret/password = value" assignments, for anything
+    # secret-shaped by name that isn't one of the known formats above. The
+    # value must contain a digit - real secrets almost always do, whereas
+    # this keeps normal code like `password: password.trim()` untouched.
+    (re.compile(
+        r"(?i)\b((?:api[_-]?key|secret[_-]?key|access[_-]?key|client[_-]?secret|"
+        r"password|passwd|token|auth[_-]?token)\s*[:=]\s*)"
+        r"['\"]?((?=[A-Za-z0-9_\-./+]*\d)[A-Za-z0-9_\-./+]{8,})['\"]?"
+    ), r"\1[REDACTED-SECRET]"),
+
+    # Bearer auth headers.
+    (re.compile(r"(?i)\bBearer\s+[A-Za-z0-9_\-.=]{10,}"), "Bearer [REDACTED-SECRET]"),
+]
+
+
+def redact_secrets(text):
+    if not text:
+        return text
+    for pattern, replacement in REDACTION_PATTERNS:
+        text = pattern.sub(replacement, text)
+    return text
+
 
 def debug(msg):
     try:
@@ -203,7 +254,7 @@ def write_file(path, fm, body):
 def handle_prompt(data):
     session_id = data.get("session_id", "unknown-session")
     transcript_path = data.get("transcript_path")
-    prompt = data.get("prompt", "")
+    prompt = redact_secrets(data.get("prompt", ""))
     ts = utc_now_iso()
     model = get_model_from_transcript(transcript_path)
 
@@ -246,7 +297,7 @@ def handle_stop(data):
         num = int(fm.get("total_exchanges", "1") or "1")
         fm["model"] = model
 
-    response_text = get_final_response_text(transcript_path)
+    response_text = redact_secrets(get_final_response_text(transcript_path))
     entry = (
         f"\n[LOG_ENTRY type=RESPONSE num={num} session={session_id}]\n"
         f"timestamp: {ts}\n"
