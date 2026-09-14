@@ -3,6 +3,7 @@ import { ProductImage } from "@/components/product/ProductImage";
 import { Price } from "@/components/ui/Price";
 import { RatingStars } from "@/components/ui/RatingStars";
 import { PrimeBadge } from "@/components/ui/Badge";
+import { CompareCheckbox } from "@/components/compare/CompareCheckbox";
 import type { Product } from "@/lib/types";
 
 interface ProductCardProps {
@@ -36,6 +37,7 @@ export function ProductCard({ product, fixedWidth = false }: ProductCardProps) {
           <PrimeBadge />
         </div>
       )}
+      <CompareCheckbox product={product} className="mt-2" />
     </Link>
   );
 }
