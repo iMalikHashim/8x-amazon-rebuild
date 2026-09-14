@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ProductImage } from "@/components/product/ProductImage";
 import { ProductArt } from "@/components/product/ProductArt";
 import { formatUsd } from "@/lib/format";
 import { products } from "@/data/products";
@@ -34,14 +35,18 @@ export function OrderSummaryCard({ order }: { order: Order }) {
 
       <div className="p-4 flex flex-col gap-3">
         {order.items.map((item) => {
-          const category = products.find((p) => p.id === item.productId)?.category ?? "Electronics";
+          const fullProduct = products.find((p) => p.id === item.productId);
           return (
             <Link
               key={item.productId}
               href={`/product/${item.slug}`}
               className="flex gap-3 items-center hover:bg-page-bg -mx-2 px-2 py-1 rounded-sm"
             >
-              <ProductArt icon={item.icon} category={category} className="w-16 h-16 rounded-sm shrink-0" />
+              {fullProduct ? (
+                <ProductImage product={fullProduct} className="w-16 h-16 rounded-sm shrink-0" sizes="64px" />
+              ) : (
+                <ProductArt icon={item.icon} category="Electronics" className="w-16 h-16 rounded-sm shrink-0" />
+              )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm line-clamp-1">{item.title}</p>
                 <p className="text-xs text-text-secondary">Qty: {item.quantity}</p>

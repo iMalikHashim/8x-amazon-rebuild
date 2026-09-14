@@ -93,4 +93,13 @@ export interface Product {
   bullets: string[];
   description: string;
   icon: ProductIconKey;
+  /**
+   * Unsplash photo IDs (the segment after "photo-" in images.unsplash.com
+   * URLs) - every one of these has been curl-verified to return a real
+   * image before being added here. See docs/architecture.md and the
+   * Step 1 commit for how these were sourced and checked. Omitted
+   * entirely for a product means no verified match was found - it keeps
+   * the generated ProductArt SVG instead.
+   */
+  photos?: string[];
 }

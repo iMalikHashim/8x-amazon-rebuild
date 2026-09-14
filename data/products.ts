@@ -21,6 +21,7 @@ export const products: Product[] = [
     description:
       "Industry-leading noise canceling headphones with premium sound quality, all-day comfort, and crystal-clear call quality.",
     icon: "Headphones",
+    photos: ["1505740420928-5e560c06d30e", "1583394838336-acd977736f90", "1546435770-a3e426bf472b", "1484704849700-f032a568e944"],
   },
   {
     id: "p002",
@@ -41,6 +42,7 @@ export const products: Product[] = [
     description:
       "A high-capacity portable charger with enough power to fuel a laptop and two phones simultaneously.",
     icon: "BatteryCharging",
+    photos: ["1618410320928-25228d811631", "1583863788434-e58a36330cf0", "1518770660439-4636190af475", "1550009158-9ebf69173e03"],
   },
   {
     id: "p003",
@@ -61,6 +63,7 @@ export const products: Product[] = [
     description:
       "A precision wireless mouse built for all-day comfort and fast, quiet scrolling across multiple devices.",
     icon: "Mouse",
+    photos: ["1527814050087-3793815479db", "1613141411244-0e4ac259d217", "1615663245857-ac93bb7c39e7", "1518770660439-4636190af475"],
   },
   {
     id: "p004",
@@ -81,6 +84,7 @@ export const products: Product[] = [
     description:
       "A compact smart speaker with Alexa built in, delivering crisp vocals and balanced bass for any room.",
     icon: "Speaker",
+    photos: ["1543512214-318c7553f230", "1512446816042-444d641267d4", "1558089687-f282ffcbc126", "1518770660439-4636190af475"],
   },
   {
     id: "p005",
@@ -101,6 +105,7 @@ export const products: Product[] = [
     description:
       "A rugged, waterproof Bluetooth speaker with punchy JBL sound built for outdoor adventures.",
     icon: "Speaker",
+    photos: ["1608043152269-423dbba4e7e1", "1545454675-3531b543be5d", "1589003077984-894e133dabab", "1518770660439-4636190af475"],
   },
 
   // ---------- Computers ----------
@@ -123,6 +128,7 @@ export const products: Product[] = [
     description:
       "A thin, silent, all-day laptop powered by Apple's M2 chip, built for work and everyday creativity.",
     icon: "Laptop",
+    photos: ["1496181133206-80ce9b88a853", "1517336714731-489689fd1ca8", "1498050108023-c5249f4df085", "1541807084-5c52b6b3adef"],
   },
   {
     id: "p007",
@@ -143,6 +149,7 @@ export const products: Product[] = [
     description:
       "A compact 13-inch laptop with a nearly borderless display and enough power for serious multitasking.",
     icon: "Laptop",
+    photos: ["1588872657578-7efd1f1555ed", "1496181133206-80ce9b88a853", "1484788984921-03950022c9ef", "1547658719-da2b51169166"],
   },
   {
     id: "p008",
@@ -163,6 +170,7 @@ export const products: Product[] = [
     description:
       "A wireless mechanical keyboard with hot-swappable switches, built for switching between up to three devices.",
     icon: "Keyboard",
+    photos: ["1587829741301-dc798b83add3", "1541140532154-b024d705b90a", "1547658719-da2b51169166", "1498050108023-c5249f4df085"],
   },
   {
     id: "p009",
@@ -183,6 +191,7 @@ export const products: Product[] = [
     description:
       "A 27-inch curved QHD monitor with a 144Hz refresh rate for smooth, immersive gameplay.",
     icon: "Monitor",
+    photos: ["1547082299-de196ea013d6", "1527443224154-c4a3942d3acf", "1593640408182-31c70c8268f5", "1547658719-da2b51169166"],
   },
   {
     id: "p010",
@@ -203,6 +212,7 @@ export const products: Product[] = [
     description:
       "A rugged, pocket-sized SSD with fast transfer speeds and password-protected encryption.",
     icon: "HardDrive",
+    photos: ["1597872200969-2b65d56bd16b", "1591370874773-6702e8f12fd8", "1547658719-da2b51169166", "1498050108023-c5249f4df085"],
   },
 
   // ---------- Home & Kitchen ----------
@@ -225,6 +235,7 @@ export const products: Product[] = [
     description:
       "The best-selling multi-cooker that replaces seven kitchen appliances and cooks meals up to 70% faster.",
     icon: "CookingPot",
+    photos: ["1585515320310-259814833e62", "1585237017125-24baf8d7406f", "1556911220-bff31c812dba", "1556909114-f6e7ad7d3136"],
   },
   {
     id: "p012",
@@ -245,6 +256,7 @@ export const products: Product[] = [
     description:
       "A 5-quart air fryer that crisps favorite foods with little to no oil and cleans up in minutes.",
     icon: "CookingPot",
+    photos: ["1626200419199-391ae4be7a41", "1585515320310-259814833e62", "1556911220-bff31c812dba", "1556909114-f6e7ad7d3136"],
   },
   {
     id: "p013",
@@ -265,6 +277,7 @@ export const products: Product[] = [
     description:
       "A slim, single-serve coffee maker that fits almost anywhere and brews in under three minutes.",
     icon: "CookingPot",
+    photos: ["1495474472287-4d71bcdd2085", "1541167760496-1628856ab772", "1517701604599-bb29b565090c", "1556911220-bff31c812dba"],
   },
   {
     id: "p014",
@@ -284,6 +297,7 @@ export const products: Product[] = [
     description:
       "A double-wall insulated stainless steel bottle that keeps drinks cold for 24 hours or hot for 12.",
     icon: "GlassWater",
+    photos: ["1523362628745-0c100150b504", "1602143407151-7111542de6e8", "1610824352934-c10d87b700cc", "1556911220-bff31c812dba"],
   },
   {
     id: "p015",
@@ -304,6 +318,7 @@ export const products: Product[] = [
     description:
       "A stackable, non-slip 3-piece mixing bowl set with built-in measurement markings.",
     icon: "Utensils",
+    photos: ["1556910103-1c02745aae4d", "1556911220-bff31c812dba", "1556909114-f6e7ad7d3136"],
   },
 
   // ---------- Back to School ----------
@@ -326,6 +341,7 @@ export const products: Product[] = [
     description:
       "A roomy, durable backpack with padded straps and enough space for a full day of classes.",
     icon: "Backpack",
+    photos: ["1553062407-98eeb64c6a62", "1622560480605-d83c853bc5c3", "1546521343-4eb2c01aa44b", "1503676260728-1c00da094a0b"],
   },
   {
     id: "p017",
@@ -346,6 +362,7 @@ export const products: Product[] = [
     description:
       "A color-screen graphing calculator with a rechargeable battery, approved for major standardized exams.",
     icon: "Calculator",
+    photos: ["1611348586804-61bf6c080437", "1587145820266-a5951ee6f620", "1546521343-4eb2c01aa44b", "1503676260728-1c00da094a0b"],
   },
   {
     id: "p018",
@@ -365,6 +382,7 @@ export const products: Product[] = [
     description:
       "A 5-subject spiral notebook with tear-resistant pages and pocket dividers to keep classes organized.",
     icon: "Notebook",
+    photos: ["1531346878377-a5be20888e57", "1517971071642-34a2d3ecc9cd", "1546521343-4eb2c01aa44b", "1503676260728-1c00da094a0b"],
   },
   {
     id: "p019",
@@ -385,6 +403,7 @@ export const products: Product[] = [
     description:
       "A 50-count set of pre-sharpened, break-resistant colored pencils for school and art projects.",
     icon: "Pencil",
+    photos: ["1541961017774-22349e4a1262", "1513364776144-60967b0f800f", "1546521343-4eb2c01aa44b", "1503676260728-1c00da094a0b"],
   },
   {
     id: "p020",
@@ -405,6 +424,7 @@ export const products: Product[] = [
     description:
       "America's best-selling gel pen, with smooth, skip-free ink and a comfortable rubber grip.",
     icon: "PenTool",
+    photos: ["1546521343-4eb2c01aa44b", "1503676260728-1c00da094a0b"],
   },
 
   // ---------- Gaming ----------
@@ -426,6 +446,7 @@ export const products: Product[] = [
     description:
       "Sony's slim next-generation console, with ultra-fast loading and stunning 4K graphics.",
     icon: "Gamepad2",
+    photos: ["1606813907291-d86efa9b94db", "1607853202273-797f1c22a38e", "1622297845775-5ff3fef71d13", "1550745165-9bc0b252726f"],
   },
   {
     id: "p022",
@@ -445,6 +466,7 @@ export const products: Product[] = [
     description:
       "The redesigned Xbox controller, with a sculpted shape and Bluetooth connectivity for console, PC, and mobile.",
     icon: "Joystick",
+    photos: ["1592840062661-a5a7f78e2056", "1580327344181-c1163234e5a0", "1621259182978-fbf93132d53d", "1550745165-9bc0b252726f"],
   },
   {
     id: "p023",
@@ -465,6 +487,7 @@ export const products: Product[] = [
     description:
       "An esports-grade gaming headset with precise audio and a detachable noise-reducing microphone.",
     icon: "Headphones",
+    photos: ["1599669454699-248893623440", "1618366712010-f4ae9c647dcb", "1550745165-9bc0b252726f", "1493711662062-fa541adb3fc8"],
   },
   {
     id: "p024",
@@ -485,6 +508,7 @@ export const products: Product[] = [
     description:
       "The best-selling gaming mouse pad, trusted by pro players for consistent, precise tracking.",
     icon: "Mouse",
+    photos: ["1615663245857-ac93bb7c39e7", "1616588589676-62b3bd4ff6d2", "1550745165-9bc0b252726f", "1493711662062-fa541adb3fc8"],
   },
   {
     id: "p025",
@@ -504,6 +528,7 @@ export const products: Product[] = [
     description:
       "Nintendo's OLED-screen console, playable on the TV, tabletop, or in handheld mode.",
     icon: "Gamepad2",
+    photos: ["1578303512597-81e6cc155b3e", "1591370874773-6702e8f12fd8", "1550745165-9bc0b252726f", "1493711662062-fa541adb3fc8"],
   },
 
   // ---------- Fashion ----------
@@ -526,6 +551,7 @@ export const products: Product[] = [
     description:
       "The original straight-leg, button-fly jean, cut from classic 100% cotton denim.",
     icon: "Shirt",
+    photos: ["1542272604-787c3835535d", "1541099649105-f69ad21f3246", "1441986300917-64674bd600d8", "1445205170230-053b83016050"],
   },
   {
     id: "p027",
@@ -546,6 +572,7 @@ export const products: Product[] = [
     description:
       "A heavyweight pullover hoodie built with Champion's shrink-resistant reverse weave fleece.",
     icon: "Shirt",
+    photos: ["1556821840-3a63f95609a7", "1620799140408-edc6dcb6d633", "1441986300917-64674bd600d8", "1445205170230-053b83016050"],
   },
   {
     id: "p028",
@@ -566,6 +593,7 @@ export const products: Product[] = [
     description:
       "The classic basketball-shoe-turned-streetwear-staple, in a durable full leather upper.",
     icon: "Footprints",
+    photos: ["1595950653106-6c9ebd614d3a", "1542291026-7eec264c27ff", "1460353581641-37baddab0fa2", "1441986300917-64674bd600d8"],
   },
   {
     id: "p029",
@@ -586,6 +614,7 @@ export const products: Product[] = [
     description:
       "A durable, midweight cotton pocket tee built for everyday wear, in Carhartt's original loose fit.",
     icon: "Shirt",
+    photos: ["1521572163474-6864f9cf17ab", "1576566588028-4147f3842f27", "1441986300917-64674bd600d8", "1445205170230-053b83016050"],
   },
   {
     id: "p030",
@@ -605,6 +634,7 @@ export const products: Product[] = [
     description:
       "The original Wayfarer, with 100% UV protection in a lightweight acetate frame.",
     icon: "Glasses",
+    photos: ["1511499767150-a48a237f0083", "1572635196237-14b3f281503f", "1441986300917-64674bd600d8", "1445205170230-053b83016050"],
   },
 
   // ---------- Toys & Games ----------
@@ -627,6 +657,7 @@ export const products: Product[] = [
     description:
       "A 790-piece box of classic LEGO bricks in a wide mix of colors and shapes for open-ended building.",
     icon: "Blocks",
+    photos: ["1585366119957-e9730b6d0f60", "1587654780291-39c9404d746b", "1560961911-ba7ef651a56c", "1558877385-81a1c7e67d72"],
   },
   {
     id: "p032",
@@ -647,6 +678,7 @@ export const products: Product[] = [
     description:
       "The classic four-in-a-row strategy game, quick to learn and fun for the whole family.",
     icon: "Dices",
+    photos: ["1611371805429-8b5c1b2c34ba", "1558877385-81a1c7e67d72", "1516981879613-9f5da904015f"],
   },
   {
     id: "p033",
@@ -666,6 +698,7 @@ export const products: Product[] = [
     description:
       "A 100-piece set of solid wooden building blocks with a wooden storage crate for easy cleanup.",
     icon: "Blocks",
+    photos: ["1587654780291-39c9404d746b", "1503551723145-6c040742065b", "1558877385-81a1c7e67d72", "1516981879613-9f5da904015f"],
   },
   {
     id: "p034",
@@ -686,6 +719,7 @@ export const products: Product[] = [
     description:
       "A fast-reloading blaster with a 12-dart clip and a tactical rail for accessories.",
     icon: "Dices",
+    photos: ["1608889175123-8ee362201f81", "1558877385-81a1c7e67d72", "1516981879613-9f5da904015f"],
   },
   {
     id: "p035",
@@ -706,6 +740,7 @@ export const products: Product[] = [
     description:
       "The best-selling family card game — match colors and numbers to empty your hand first.",
     icon: "Dices",
+    photos: ["1611891487122-207579d67d98", "1518895949257-7621c3c786d7", "1558877385-81a1c7e67d72", "1516981879613-9f5da904015f"],
   },
 
   // ---------- Sports & Outdoors ----------
@@ -728,6 +763,7 @@ export const products: Product[] = [
     description:
       "A weatherproof dome tent that sets up in about 10 minutes and sleeps up to four.",
     icon: "Tent",
+    photos: ["1504280390367-361c6d9f38f4", "1478131143081-80f7f84ca84d", "1517824806704-9040b037703b", "1517649763962-0c623066013b"],
   },
   {
     id: "p037",
@@ -747,6 +783,7 @@ export const products: Product[] = [
     description:
       "A double-wall vacuum-insulated tumbler that keeps drinks at temperature for hours.",
     icon: "GlassWater",
+    photos: ["1523362628745-0c100150b504", "1602143407151-7111542de6e8", "1517649763962-0c623066013b", "1517836357463-d25dfeac3438"],
   },
   {
     id: "p038",
@@ -767,6 +804,7 @@ export const products: Product[] = [
     description:
       "A GPS-equipped fitness tracker with 24/7 heart rate tracking and up to 7 days of battery life.",
     icon: "Watch",
+    photos: ["1544117519-31a4b719223d", "1508685096489-7aacd43bd3b1", "1517649763962-0c623066013b", "1517836357463-d25dfeac3438"],
   },
   {
     id: "p039",
@@ -786,6 +824,7 @@ export const products: Product[] = [
     description:
       "The most-used indoor basketball in high school gyms, with a soft, grippy composite leather cover.",
     icon: "Dumbbell",
+    photos: ["1518063319789-7217e6706b04", "1519861531473-9200262188bf", "1517649763962-0c623066013b", "1517836357463-d25dfeac3438"],
   },
   {
     id: "p040",
@@ -806,5 +845,6 @@ export const products: Product[] = [
     description:
       "Adjustable dumbbells that replace 15 sets of weights, dialing from 5 to 52.5 lbs in seconds.",
     icon: "Dumbbell",
+    photos: ["1517836357463-d25dfeac3438", "1571019613454-1cb2f99b2d8b", "1517649763962-0c623066013b"],
   },
 ];

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { ProductImage } from "@/components/product/ProductImage";
 import { ProductArt } from "@/components/product/ProductArt";
 import { formatUsd } from "@/lib/format";
 import { useCart, type CartItem } from "@/lib/cart-context";
@@ -10,12 +11,16 @@ const QUANTITIES = Array.from({ length: 10 }, (_, i) => i + 1);
 
 export function CartLineItem({ item }: { item: CartItem }) {
   const { setQuantity, removeItem, saveForLater } = useCart();
-  const category = products.find((p) => p.id === item.productId)?.category ?? "Electronics";
+  const fullProduct = products.find((p) => p.id === item.productId);
 
   return (
     <div className="flex gap-4 py-4 border-b border-border last:border-b-0">
       <Link href={`/product/${item.slug}`} className="w-24 sm:w-32 shrink-0">
-        <ProductArt icon={item.icon} category={category} className="rounded-sm" />
+        {fullProduct ? (
+          <ProductImage product={fullProduct} className="rounded-sm" sizes="128px" />
+        ) : (
+          <ProductArt icon={item.icon} category="Electronics" className="rounded-sm" />
+        )}
       </Link>
 
       <div className="flex-1 flex flex-col gap-1 min-w-0">

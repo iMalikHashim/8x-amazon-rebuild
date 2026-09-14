@@ -26,7 +26,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       />
 
       <div className="bg-white border border-border rounded-sm p-4 sm:p-6 flex flex-col lg:flex-row gap-6">
-        <ImageGallery icon={product.icon} category={product.category} title={product.title} />
+        <ImageGallery product={product} />
 
         <div className="flex-1 flex flex-col gap-2 min-w-0">
           <h1 className="text-xl sm:text-2xl font-medium text-text">{product.title}</h1>

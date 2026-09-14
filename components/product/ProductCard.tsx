@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ProductArt } from "@/components/product/ProductArt";
+import { ProductImage } from "@/components/product/ProductImage";
 import { Price } from "@/components/ui/Price";
 import { RatingStars } from "@/components/ui/RatingStars";
 import { PrimeBadge } from "@/components/ui/Badge";
@@ -19,7 +19,11 @@ export function ProductCard({ product, fixedWidth = false }: ProductCardProps) {
         fixedWidth ? "w-[180px] sm:w-[200px] shrink-0" : ""
       }`}
     >
-      <ProductArt icon={product.icon} category={product.category} className="rounded-sm mb-3" />
+      <ProductImage
+        product={product}
+        className="rounded-sm mb-3"
+        sizes={fixedWidth ? "200px" : "(max-width: 640px) 45vw, 220px"}
+      />
       <span className="text-sm text-text line-clamp-2 group-hover:text-link">{product.title}</span>
       <div className="mt-1">
         <RatingStars rating={product.rating} reviewCount={product.reviewCount} size={12} />
