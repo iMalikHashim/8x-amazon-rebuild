@@ -17,7 +17,7 @@ function SignInForm() {
   const [error, setError] = useState<"unknown-email" | "wrong-password" | "invalid" | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
     if (!email.trim() || !password) {
@@ -25,9 +25,10 @@ function SignInForm() {
       return;
     }
     setSubmitting(true);
-    const result = signIn(email.trim(), password);
+    const result = await signIn(email.trim(), password);
     if (result.ok) {
       router.push(redirectTo);
+      router.refresh();
       return;
     }
     setError(result.error);
@@ -100,8 +101,8 @@ function SignInForm() {
         </Button>
 
         <p className="text-xs text-text-secondary">
-          Mocked sign-in for a portfolio rebuild - credentials are checked against accounts created
-          via Sign up, stored in this browser only. Nothing is sent anywhere.
+          Credentials are checked against a real account database. Checkout and payment on this
+          rebuild are still simulated - see the README for details.
         </p>
       </form>
 

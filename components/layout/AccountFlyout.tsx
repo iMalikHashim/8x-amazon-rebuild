@@ -3,6 +3,7 @@
 import * as Popover from "@radix-ui/react-popover";
 import { ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/Button";
 
@@ -25,6 +26,7 @@ const SIGNED_OUT_ACCOUNT_LINKS = [
 
 export function AccountFlyout() {
   const { user, signOut } = useAuth();
+  const router = useRouter();
 
   return (
     <Popover.Root>
@@ -96,7 +98,9 @@ export function AccountFlyout() {
               <hr className="my-4 border-border" />
               <button
                 type="button"
-                onClick={() => signOut()}
+                onClick={() => {
+                  signOut().then(() => router.refresh());
+                }}
                 className="text-sm text-link hover:text-link-hover hover:underline"
               >
                 Sign out
