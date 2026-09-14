@@ -25,16 +25,17 @@ export function DepartmentMenu() {
         <Dialog.Content
           className="fixed left-0 top-0 bottom-0 z-50 w-[320px] max-w-[86vw] bg-white flex flex-col outline-none data-[state=open]:animate-[panel-slide-in_200ms_ease-out]"
           aria-describedby={undefined}
+          aria-modal="true"
         >
           <div className="bg-header text-white px-3 py-3 flex items-center gap-3 shrink-0">
             <Dialog.Close aria-label="Close menu" className="p-1 -m-1">
               <X size={22} />
             </Dialog.Close>
             <Dialog.Title asChild>
-              <div className="flex items-center gap-2 text-lg font-bold">
-                <CircleUserRound size={26} />
+              <h2 className="flex items-center gap-2 text-lg font-bold m-0">
+                <CircleUserRound size={26} aria-hidden="true" />
                 {user ? `Hello, ${user.name}` : "Hello, sign in"}
-              </div>
+              </h2>
             </Dialog.Title>
           </div>
 

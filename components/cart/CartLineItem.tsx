@@ -44,7 +44,7 @@ export function CartLineItem({ item }: { item: CartItem }) {
               ))}
             </select>
           </label>
-          <span className="text-border-strong">|</span>
+          <span className="text-border-strong" aria-hidden="true">|</span>
           <button
             type="button"
             onClick={() => removeItem(item.productId)}
@@ -52,7 +52,7 @@ export function CartLineItem({ item }: { item: CartItem }) {
           >
             Delete
           </button>
-          <span className="text-border-strong">|</span>
+          <span className="text-border-strong" aria-hidden="true">|</span>
           <button
             type="button"
             onClick={() => saveForLater(item.productId)}

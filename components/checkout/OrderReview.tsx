@@ -85,7 +85,8 @@ export function OrderReview({
         variant="cta"
         onClick={onPlaceOrder}
         disabled={placing}
-        className="w-full py-2.5 font-medium text-base disabled:opacity-60"
+        aria-busy={placing}
+        className="w-full py-2.5 font-medium text-base disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {placing ? "Placing your order..." : "Place your order"}
       </Button>

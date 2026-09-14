@@ -70,22 +70,27 @@ export function AddressForm({
         />
       </label>
 
-      <div className="flex gap-3">
-        <label className="flex-1 flex flex-col gap-1 text-sm">
+      {/* min-w-0 on every flex child + w-full on the inputs: without both, a
+          bare <input>'s default intrinsic width wins over flex-shrink and
+          the ZIP field overflows past the row at narrow widths (confirmed
+          via measurement: input right edge landed outside its own row's
+          right edge at 390px). */}
+      <div className="flex flex-wrap gap-3">
+        <label className="flex-1 min-w-[120px] flex flex-col gap-1 text-sm">
           City
           <input
             value={values.city}
             onChange={set("city")}
-            className="border border-border-strong rounded-sm px-2 py-1.5"
+            className="w-full min-w-0 border border-border-strong rounded-sm px-2 py-1.5"
           />
           {errors.city && <span className="text-price text-xs">{errors.city}</span>}
         </label>
-        <label className="flex flex-col gap-1 text-sm">
+        <label className="w-20 min-w-0 flex flex-col gap-1 text-sm">
           State
           <select
             value={values.state}
             onChange={set("state")}
-            className="border border-border-strong rounded-sm px-2 py-1.5"
+            className="w-full min-w-0 border border-border-strong rounded-sm px-2 py-1.5"
           >
             {US_STATES.map((s) => (
               <option key={s} value={s}>
@@ -94,14 +99,14 @@ export function AddressForm({
             ))}
           </select>
         </label>
-        <label className="w-28 flex flex-col gap-1 text-sm">
+        <label className="w-24 min-w-0 flex flex-col gap-1 text-sm">
           ZIP
           <input
             value={values.zip}
             onChange={set("zip")}
-            className="border border-border-strong rounded-sm px-2 py-1.5"
+            className="w-full min-w-0 border border-border-strong rounded-sm px-2 py-1.5"
           />
-          {errors.zip && <span className="text-price text-xs">{errors.zip}</span>}
+          {errors.zip && <span className="text-price text-xs whitespace-nowrap">{errors.zip}</span>}
         </label>
       </div>
 

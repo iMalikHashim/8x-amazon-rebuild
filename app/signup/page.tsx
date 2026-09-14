@@ -38,15 +38,19 @@ function SignUpForm() {
   const isValid = Object.keys(errors).length === 0;
 
   const touch = (field: string) => setTouched((t) => ({ ...t, [field]: true }));
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     setTouched({ name: true, email: true, password: true, confirm: true });
     if (!isValid) return;
 
+    setSubmitting(true);
     const result = signUp(name.trim(), email.trim(), password);
     if (!result.ok) {
       setFormError(result.error);
+      setSubmitting(false);
       return;
     }
     router.push(redirectTo);
@@ -117,8 +121,14 @@ function SignUpForm() {
 
         {formError && <p className="text-price text-sm">{formError}</p>}
 
-        <Button type="submit" variant="cta" className="w-full py-2 font-medium disabled:opacity-50" disabled={!isValid}>
-          Create your account
+        <Button
+          type="submit"
+          variant="cta"
+          className="w-full py-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={!isValid || submitting}
+          aria-busy={submitting}
+        >
+          {submitting ? "Creating your account…" : "Create your account"}
         </Button>
 
         <p className="text-xs text-text-secondary">

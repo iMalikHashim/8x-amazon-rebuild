@@ -13,6 +13,7 @@ const QUANTITIES = Array.from({ length: 10 }, (_, i) => i + 1);
 export function BuyBox({ product }: { product: Product }) {
   const [qty, setQty] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
+  const [busy, setBusy] = useState<"add" | "buy" | null>(null);
   const { addItem } = useCart();
   const router = useRouter();
 
@@ -23,12 +24,19 @@ export function BuyBox({ product }: { product: Product }) {
   });
 
   const handleAddToCart = () => {
+    if (busy) return;
+    setBusy("add");
     addItem(product, qty);
     setJustAdded(true);
-    window.setTimeout(() => setJustAdded(false), 2000);
+    window.setTimeout(() => {
+      setJustAdded(false);
+      setBusy(null);
+    }, 1200);
   };
 
   const handleBuyNow = () => {
+    if (busy) return;
+    setBusy("buy");
     addItem(product, qty);
     router.push("/checkout");
   };
@@ -64,11 +72,25 @@ export function BuyBox({ product }: { product: Product }) {
         </select>
       </label>
 
-      <Button type="button" variant="cta" onClick={handleAddToCart} className="w-full py-2 font-medium">
-        {justAdded ? "Added to Cart ✓" : "Add to Cart"}
+      <Button
+        type="button"
+        variant="cta"
+        onClick={handleAddToCart}
+        disabled={busy !== null}
+        aria-busy={busy === "add"}
+        className="w-full py-2 font-medium disabled:opacity-70 disabled:cursor-not-allowed"
+      >
+        {justAdded ? "Added to Cart ✓" : busy === "add" ? "Adding…" : "Add to Cart"}
       </Button>
-      <Button type="button" variant="buynow" onClick={handleBuyNow} className="w-full py-2 font-medium">
-        Buy Now
+      <Button
+        type="button"
+        variant="buynow"
+        onClick={handleBuyNow}
+        disabled={busy !== null}
+        aria-busy={busy === "buy"}
+        className="w-full py-2 font-medium disabled:opacity-70 disabled:cursor-not-allowed"
+      >
+        {busy === "buy" ? "Processing…" : "Buy Now"}
       </Button>
 
       <p className="text-xs text-text-secondary border-t border-border pt-3">

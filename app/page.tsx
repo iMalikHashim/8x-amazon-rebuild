@@ -48,7 +48,7 @@ export default async function Home() {
     <div className="max-w-[1500px] mx-auto px-2 sm:px-3 py-4 flex flex-col gap-4">
       <HeroBanner />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 -mt-8 sm:-mt-16 relative z-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 divide-y sm:divide-x sm:divide-y lg:divide-y-0 divide-border border border-border bg-white -mt-8 sm:-mt-16 relative z-10">
         {PROMO_CARDS.map((card) => (
           <PromoCard key={card.title} {...card} />
         ))}

@@ -34,7 +34,7 @@ export function SavedItem({ item }: { item: CartItem }) {
           >
             Move to Cart
           </button>
-          <span className="text-border-strong">|</span>
+          <span className="text-border-strong" aria-hidden="true">|</span>
           <button
             type="button"
             onClick={() => removeSaved(item.productId)}

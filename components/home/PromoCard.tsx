@@ -36,8 +36,8 @@ export function PromoCard({ title, tiles, ctaLabel, ctaHref }: PromoCardProps) {
   const isSingle = tiles.length === 1;
 
   return (
-    <div className="bg-white border border-border rounded-sm p-4 flex flex-col">
-      <h3 className="font-bold text-lg text-text mb-3">{title}</h3>
+    <div className="bg-white p-4 flex flex-col">
+      <h2 className="font-bold text-lg text-text mb-3">{title}</h2>
 
       {isSingle ? (
         <Tile {...tiles[0]} big />

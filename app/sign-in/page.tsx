@@ -15,19 +15,23 @@ function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<"unknown-email" | "wrong-password" | "invalid" | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     if (!email.trim() || !password) {
       setError("invalid");
       return;
     }
+    setSubmitting(true);
     const result = signIn(email.trim(), password);
     if (result.ok) {
       router.push(redirectTo);
       return;
     }
     setError(result.error);
+    setSubmitting(false);
   };
 
   return (
@@ -85,8 +89,14 @@ function SignInForm() {
           )}
         </label>
 
-        <Button type="submit" variant="cta" className="w-full py-2 font-medium">
-          Sign in
+        <Button
+          type="submit"
+          variant="cta"
+          disabled={submitting}
+          aria-busy={submitting}
+          className="w-full py-2 font-medium disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+          {submitting ? "Signing in…" : "Sign in"}
         </Button>
 
         <p className="text-xs text-text-secondary">
