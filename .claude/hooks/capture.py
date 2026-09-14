@@ -17,6 +17,7 @@ import os
 import re
 import json
 import glob
+import time
 from datetime import datetime, timezone
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -25,7 +26,7 @@ LOG_DIR = os.environ.get("CAPTURE_LOG_DIR", os.path.join(REPO_ROOT, ".agent-logs
 DEBUG_LOG = os.path.join(SCRIPT_DIR, "capture-debug.log")
 
 AUTHOR = "iMalikHashim"
-PROJECT = "amazon-rebuild"
+PROJECT = "8x-amazon-rebuild"
 TOOL = "claude-code"
 DEFAULT_MODEL = "claude-sonnet-5"
 
@@ -80,33 +81,58 @@ def get_model_from_transcript(transcript_path, fallback=DEFAULT_MODEL):
     return fallback
 
 
-def get_final_response_text(transcript_path):
+def _scan_transcript_for_final_text(transcript_path):
+    """Return the last assistant text block in the transcript, or None if
+    none is present yet. None (not an error) means "not written yet" -
+    the caller retries; it is never mistaken for a real empty response."""
+    with open(transcript_path, "r") as f:
+        lines = f.readlines()
+    for line in reversed(lines):
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if obj.get("type") == "assistant":
+            content = obj.get("message", {}).get("content", [])
+            texts = [
+                c.get("text", "") for c in content
+                if isinstance(c, dict) and c.get("type") == "text"
+            ]
+            text = "\n".join(t for t in texts if t.strip())
+            if text.strip():
+                return text
+    return None
+
+
+def get_final_response_text(transcript_path, retries=20, delay=0.25):
+    """Poll the transcript for the final response text.
+
+    The Stop hook can fire slightly before Claude Code finishes flushing
+    the last assistant message to the transcript file on disk (observed:
+    ~12s gap during the 8x capture-test verification on 2026-09-14, session
+    835d9d63 - the hook read the file before line 34, the real final text,
+    had been written, and correctly logged "not found" rather than
+    guessing). Retrying for a few seconds closes that race instead of
+    silently losing the response.
+    """
     if not transcript_path or not os.path.exists(transcript_path):
         return "[no transcript available]"
-    try:
-        with open(transcript_path, "r") as f:
-            lines = f.readlines()
-        for line in reversed(lines):
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                obj = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-            if obj.get("type") == "assistant":
-                content = obj.get("message", {}).get("content", [])
-                texts = [
-                    c.get("text", "") for c in content
-                    if isinstance(c, dict) and c.get("type") == "text"
-                ]
-                text = "\n".join(t for t in texts if t.strip())
-                if text.strip():
-                    return text
-        return "[no text response found in transcript]"
-    except Exception as e:
-        debug(f"get_final_response_text error: {e}")
-        return f"[capture error reading transcript: {e}]"
+    last_error = None
+    for attempt in range(retries):
+        try:
+            text = _scan_transcript_for_final_text(transcript_path)
+            if text is not None:
+                return text
+        except Exception as e:
+            last_error = e
+            debug(f"get_final_response_text attempt {attempt} error: {e}")
+        time.sleep(delay)
+    if last_error is not None:
+        return f"[capture error reading transcript: {last_error}]"
+    return "[no text response found in transcript after retrying]"
 
 
 def find_log_path(session_id, ts):

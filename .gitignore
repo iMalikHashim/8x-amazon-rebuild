@@ -6,3 +6,4 @@ dist/
 build/
 *.log
 .claude/hooks/capture-debug.log
+__pycache__/
