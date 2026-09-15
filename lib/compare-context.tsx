@@ -31,6 +31,23 @@ type CompareAction =
 
 const STORAGE_KEY = "8x-amazon-rebuild:compare";
 
+/** Same reasoning as cart-context.tsx's isValidCartItem - localStorage
+ * content can predate a schema change, so it's validated per-entry rather
+ * than trusted, dropping anything malformed instead of risking a crash
+ * downstream (e.g. a missing `category` reaching categoryArt). */
+function isValidCompareEntry(value: unknown): value is CompareEntry {
+  if (!value || typeof value !== "object") return false;
+  const entry = value as Record<string, unknown>;
+  return (
+    typeof entry.id === "string" &&
+    typeof entry.slug === "string" &&
+    typeof entry.title === "string" &&
+    typeof entry.icon === "string" &&
+    typeof entry.category === "string" &&
+    typeof entry.price === "number"
+  );
+}
+
 function reducer(state: CompareState, action: CompareAction): CompareState {
   switch (action.type) {
     case "TOGGLE": {
@@ -75,7 +92,7 @@ export function CompareProvider({ children }: { children: ReactNode }) {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (Array.isArray(parsed)) {
-          dispatch({ type: "HYDRATE", entries: parsed.slice(0, MAX_COMPARE_ITEMS) });
+          dispatch({ type: "HYDRATE", entries: parsed.filter(isValidCompareEntry).slice(0, MAX_COMPARE_ITEMS) });
         }
       }
     } catch {

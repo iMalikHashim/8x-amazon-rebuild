@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { productIcons } from "@/lib/product-icons";
-import { categoryArt } from "@/lib/category-art";
+import { productIcons, DEFAULT_PRODUCT_ICON } from "@/lib/product-icons";
+import { getCategoryArt } from "@/lib/category-art";
 import { ICON_PHOTOS } from "@/lib/promo-photos";
 import { unsplashUrl } from "@/lib/unsplash";
 import type { Category, ProductIconKey } from "@/lib/types";
@@ -24,8 +24,8 @@ export interface PromoCardProps {
 
 function Tile({ icon, category, label, href, big = false }: PromoTile & { big?: boolean }) {
   const photoId = ICON_PHOTOS[icon];
-  const Icon = productIcons[icon];
-  const { accent, tint } = categoryArt[category];
+  const Icon = productIcons[icon] || DEFAULT_PRODUCT_ICON;
+  const { accent, tint } = getCategoryArt(category);
 
   return (
     <Link href={href} className="flex flex-col items-center gap-1.5 group">

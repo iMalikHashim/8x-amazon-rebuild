@@ -37,6 +37,7 @@ import {
   Utensils,
   Watch,
   Bike,
+  Package,
   type LucideIcon,
 } from "lucide-react";
 import type { ProductIconKey } from "@/lib/types";
@@ -81,3 +82,13 @@ export const productIcons: Record<ProductIconKey, LucideIcon> = {
   GlassWater,
   Gift,
 };
+
+/**
+ * Fallback for an icon key that isn't a known entry (stale localStorage
+ * data, bad input, anything) - use as `productIcons[icon] ||
+ * DEFAULT_PRODUCT_ICON` at the call site (a plain object lookup, not a
+ * function call) so React's static-components check still recognizes the
+ * JSX tag as stable. Without a fallback, `undefined` reaching `<Icon />`
+ * crashes render entirely.
+ */
+export const DEFAULT_PRODUCT_ICON: LucideIcon = Package;

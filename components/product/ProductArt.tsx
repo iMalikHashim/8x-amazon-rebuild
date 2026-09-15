@@ -1,5 +1,5 @@
-import { categoryArt } from "@/lib/category-art";
-import { productIcons } from "@/lib/product-icons";
+import { getCategoryArt } from "@/lib/category-art";
+import { productIcons, DEFAULT_PRODUCT_ICON } from "@/lib/product-icons";
 import type { Category, ProductIconKey } from "@/lib/types";
 
 export type ProductArtVariant = "default" | "zoom" | "flip" | "mono";
@@ -18,8 +18,8 @@ interface ProductArtProps {
  * available without scraping (see docs/architecture.md, section 5).
  */
 export function ProductArt({ icon, category, className = "", variant = "default" }: ProductArtProps) {
-  const Icon = productIcons[icon];
-  const { accent, tint } = categoryArt[category];
+  const Icon = productIcons[icon] || DEFAULT_PRODUCT_ICON;
+  const { accent, tint } = getCategoryArt(category);
 
   const iconSize = variant === "zoom" ? "w-[58%] h-[58%]" : "w-[42%] h-[42%]";
   const iconTransform: string[] = [];

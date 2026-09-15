@@ -42,6 +42,36 @@ type CartAction =
 
 const STORAGE_KEY = "8x-amazon-rebuild:cart";
 
+/**
+ * localStorage crosses a JSON boundary with zero type safety, and its
+ * content can predate a schema change (found the hard way: a cart item
+ * saved before `category`/`photos` were added to CartItem crashed the
+ * whole /cart page on every visit via an unguarded categoryArt lookup
+ * downstream). Anything that doesn't look like a real CartItem is
+ * dropped rather than trusted - losing one stale entry beats crashing.
+ */
+function isValidCartItem(value: unknown): value is CartItem {
+  if (!value || typeof value !== "object") return false;
+  const item = value as Record<string, unknown>;
+  return (
+    typeof item.productId === "string" &&
+    typeof item.slug === "string" &&
+    typeof item.title === "string" &&
+    typeof item.price === "number" &&
+    typeof item.icon === "string" &&
+    typeof item.category === "string" &&
+    typeof item.quantity === "number"
+  );
+}
+
+function sanitizeCartState(raw: unknown): CartState {
+  const obj = raw && typeof raw === "object" ? (raw as { items?: unknown; saved?: unknown }) : {};
+  return {
+    items: Array.isArray(obj.items) ? obj.items.filter(isValidCartItem) : [],
+    saved: Array.isArray(obj.saved) ? obj.saved.filter(isValidCartItem) : [],
+  };
+}
+
 function toCartItem(product: Product, quantity: number): CartItem {
   return {
     productId: product.id,
@@ -152,7 +182,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         if (wasGuest) {
           try {
             const raw = window.localStorage.getItem(STORAGE_KEY);
-            const guest: CartState = raw ? JSON.parse(raw) : { items: [], saved: [] };
+            const guest: CartState = raw ? sanitizeCartState(JSON.parse(raw)) : { items: [], saved: [] };
             const toMerge = [...guest.items, ...guest.saved].map((i) => ({
               productId: i.productId,
               quantity: i.quantity,
@@ -185,7 +215,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       queueMicrotask(() => {
         try {
           const raw = window.localStorage.getItem(STORAGE_KEY);
-          if (raw) dispatch({ type: "HYDRATE", state: JSON.parse(raw) });
+          if (raw) dispatch({ type: "HYDRATE", state: sanitizeCartState(JSON.parse(raw)) });
         } catch {
           // localStorage unavailable - cart just starts empty
         }

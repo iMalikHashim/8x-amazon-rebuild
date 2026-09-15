@@ -16,3 +16,16 @@ export const categoryArt: Record<Category, CategoryArt> = {
   "Sports & Outdoors": { accent: "#2F6B4F", tint: "#CDE9DA" },
   "Gift Cards": { accent: "#B5762C", tint: "#F6E4C8" },
 };
+
+const DEFAULT_CATEGORY_ART: CategoryArt = { accent: "#5A6472", tint: "#E3E6E8" };
+
+/**
+ * Safe accessor - a category that isn't a known key (a stale localStorage
+ * cart item from before a schema change, bad data, anything) gets a neutral
+ * default instead of throwing. Found the hard way: a pre-migration cart
+ * item with no `category` field crashed the whole /cart page in production
+ * via an unguarded `categoryArt[category]` destructure.
+ */
+export function getCategoryArt(category: string | undefined | null): CategoryArt {
+  return (category && categoryArt[category as Category]) || DEFAULT_CATEGORY_ART;
+}
