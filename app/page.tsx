@@ -6,26 +6,35 @@ import { getHomeRows } from "@/lib/catalog";
 
 export const dynamic = "force-dynamic";
 
+/** Every tile is its own link - a sub-tile like "Cookers" searches its
+ * parent category with the label as a query term (reusing the existing
+ * relevance search rather than needing real sub-category taxonomy). */
+function tileHref(category: string, label?: string): string {
+  const params = new URLSearchParams({ category });
+  if (label) params.set("q", label);
+  return `/search?${params.toString()}`;
+}
+
 const PROMO_CARDS: PromoCardProps[] = [
   {
     title: "Get your game on",
-    tiles: [{ label: "", icon: "Gamepad2", category: "Gaming" }],
+    tiles: [{ label: "", icon: "Gamepad2", category: "Gaming", href: tileHref("Gaming") }],
     ctaLabel: "Shop gaming",
     ctaHref: "/search?category=Gaming",
   },
   {
     title: "Must-haves for every student",
-    tiles: [{ label: "", icon: "Backpack", category: "Back to School" }],
+    tiles: [{ label: "", icon: "Backpack", category: "Back to School", href: tileHref("Back to School") }],
     ctaLabel: "Shop Back to School",
     ctaHref: "/search?category=Back+to+School",
   },
   {
     title: "Top categories in Home & Kitchen",
     tiles: [
-      { label: "Cookers", icon: "CookingPot", category: "Home & Kitchen" },
-      { label: "Coffee", icon: "Coffee", category: "Home & Kitchen" },
-      { label: "Bowls", icon: "Utensils", category: "Home & Kitchen" },
-      { label: "Bottles", icon: "GlassWater", category: "Home & Kitchen" },
+      { label: "Cookers", icon: "CookingPot", category: "Home & Kitchen", href: tileHref("Home & Kitchen", "Cooker") },
+      { label: "Coffee", icon: "Coffee", category: "Home & Kitchen", href: tileHref("Home & Kitchen", "Coffee") },
+      { label: "Bowls", icon: "Utensils", category: "Home & Kitchen", href: tileHref("Home & Kitchen", "Bowl") },
+      { label: "Bottles", icon: "GlassWater", category: "Home & Kitchen", href: tileHref("Home & Kitchen", "Bottle") },
     ],
     ctaLabel: "Explore all products in Home & Kitchen",
     ctaHref: "/search?category=Home+%26+Kitchen",
@@ -33,10 +42,10 @@ const PROMO_CARDS: PromoCardProps[] = [
   {
     title: "Must-have accessories",
     tiles: [
-      { label: "Backpacks", icon: "Backpack", category: "Back to School" },
-      { label: "Electronics", icon: "Headphones", category: "Electronics" },
-      { label: "Stationery", icon: "Pencil", category: "Back to School" },
-      { label: "Fashion", icon: "Shirt", category: "Fashion" },
+      { label: "Backpacks", icon: "Backpack", category: "Back to School", href: tileHref("Back to School", "Backpack") },
+      { label: "Electronics", icon: "Headphones", category: "Electronics", href: tileHref("Electronics") },
+      { label: "Stationery", icon: "Pencil", category: "Back to School", href: tileHref("Back to School") },
+      { label: "Fashion", icon: "Shirt", category: "Fashion", href: tileHref("Fashion") },
     ],
     ctaLabel: "Shop now",
     ctaHref: "/search",

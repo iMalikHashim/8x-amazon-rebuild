@@ -10,6 +10,9 @@ export interface PromoTile {
   label: string;
   icon: ProductIconKey;
   category: Category;
+  /** Where this specific tile links - every tile is clickable, not just
+   * the card's own "Explore all..." link at the bottom. */
+  href: string;
 }
 
 export interface PromoCardProps {
@@ -19,13 +22,13 @@ export interface PromoCardProps {
   ctaHref: string;
 }
 
-function Tile({ icon, category, label, big = false }: PromoTile & { big?: boolean }) {
+function Tile({ icon, category, label, href, big = false }: PromoTile & { big?: boolean }) {
   const photoId = ICON_PHOTOS[icon];
   const Icon = productIcons[icon];
   const { accent, tint } = categoryArt[category];
 
   return (
-    <div className="flex flex-col items-center gap-1.5">
+    <Link href={href} className="flex flex-col items-center gap-1.5 group">
       <div className="relative w-full aspect-square rounded-sm overflow-hidden bg-[#f0f2f2]">
         {photoId ? (
           <Image
@@ -33,7 +36,7 @@ function Tile({ icon, category, label, big = false }: PromoTile & { big?: boolea
             alt={label || category}
             fill
             sizes={big ? "260px" : "150px"}
-            className="object-cover"
+            className="object-cover transition-transform group-hover:scale-105"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: tint }}>
@@ -41,8 +44,8 @@ function Tile({ icon, category, label, big = false }: PromoTile & { big?: boolea
           </div>
         )}
       </div>
-      {label && <span className="text-xs text-text text-center">{label}</span>}
-    </div>
+      {label && <span className="text-xs text-text text-center group-hover:text-link">{label}</span>}
+    </Link>
   );
 }
 

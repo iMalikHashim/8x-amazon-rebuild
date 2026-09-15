@@ -1,22 +1,46 @@
 import Link from "next/link";
 import { BackToTopButton } from "@/components/layout/BackToTopButton";
 
+function outOfScope(feature: string): string {
+  return `/out-of-scope?feature=${encodeURIComponent(feature)}`;
+}
+
 const COLUMNS = [
   {
     title: "Get to Know Us",
-    links: ["Careers", "About Amazon Rebuild", "Investor Relations", "Amazon Devices"],
+    links: [
+      { label: "Careers", href: outOfScope("Careers") },
+      { label: "About Amazon Rebuild", href: outOfScope("About Amazon Rebuild") },
+      { label: "Investor Relations", href: outOfScope("Investor Relations") },
+      { label: "Amazon Devices", href: outOfScope("Amazon Devices") },
+    ],
   },
   {
     title: "Make Money with Us",
-    links: ["Sell on Amazon Rebuild", "Become an Affiliate", "Advertise Your Products", "Host an Amazon Hub"],
+    links: [
+      { label: "Sell on Amazon Rebuild", href: outOfScope("Sell") },
+      { label: "Become an Affiliate", href: outOfScope("Become an Affiliate") },
+      { label: "Advertise Your Products", href: outOfScope("Advertise Your Products") },
+      { label: "Host an Amazon Hub", href: outOfScope("Host an Amazon Hub") },
+    ],
   },
   {
     title: "Payment Products",
-    links: ["Business Card", "Shop with Points", "Reload Your Balance", "Currency Converter"],
+    links: [
+      { label: "Business Card", href: outOfScope("Business Card") },
+      { label: "Shop with Points", href: outOfScope("Shop with Points") },
+      { label: "Reload Your Balance", href: outOfScope("Reload Your Balance") },
+      { label: "Currency Converter", href: outOfScope("Currency Converter") },
+    ],
   },
   {
     title: "Let Us Help You",
-    links: ["Your Account", "Returns & Orders", "Shipping Rates & Policies", "Help"],
+    links: [
+      { label: "Your Account", href: "/account" },
+      { label: "Returns & Orders", href: "/account/orders" },
+      { label: "Shipping Rates & Policies", href: "/help" },
+      { label: "Help", href: "/help" },
+    ],
   },
 ];
 
@@ -30,10 +54,10 @@ export function Footer() {
           <div key={col.title}>
             <h3 className="font-bold text-sm mb-3">{col.title}</h3>
             <ul className="space-y-2">
-              {col.links.map((label) => (
-                <li key={label}>
-                  <Link href="#" className="text-xs text-white/80 hover:underline">
-                    {label}
+              {col.links.map((link) => (
+                <li key={link.label}>
+                  <Link href={link.href} className="text-xs text-white/80 hover:underline">
+                    {link.label}
                   </Link>
                 </li>
               ))}

@@ -27,10 +27,10 @@ export const departmentMenuGroups: MenuGroup[] = [
   {
     title: "Digital Content & Devices",
     items: [
-      { label: "Prime Video" },
-      { label: "Amazon Music" },
-      { label: "Kindle E-readers & Books" },
-      { label: "Amazon Appstore" },
+      { label: "Prime Video", href: "/out-of-scope?feature=Prime+Video" },
+      { label: "Amazon Music", href: "/out-of-scope?feature=Amazon+Music" },
+      { label: "Kindle E-readers & Books", href: "/out-of-scope?feature=Kindle" },
+      { label: "Amazon Appstore", href: "/out-of-scope?feature=Amazon+Appstore" },
     ],
   },
   {
@@ -43,17 +43,17 @@ export const departmentMenuGroups: MenuGroup[] = [
   {
     title: "Programs & Features",
     items: [
-      { label: "Gift Cards" },
-      { label: "Amazon Live" },
-      { label: "International Shopping" },
-      { label: "Amazon Second Chance" },
+      { label: "Gift Cards", href: "/gift-cards" },
+      { label: "Amazon Live", href: "/out-of-scope?feature=Amazon+Live" },
+      { label: "International Shopping", href: "/out-of-scope?feature=International+Shopping" },
+      { label: "Amazon Second Chance", href: "/out-of-scope?feature=Amazon+Second+Chance" },
     ],
   },
   {
     title: "Help & Settings",
     items: [
       { label: "Your Account", href: "/account" },
-      { label: "Customer Service" },
+      { label: "Customer Service", href: "/help" },
       { label: "Sign in", href: "/sign-in" },
     ],
   },

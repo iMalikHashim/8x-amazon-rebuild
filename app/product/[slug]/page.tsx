@@ -61,7 +61,10 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
       <ReviewsSection product={product} />
 
       {related.length > 0 && (
-        <CarouselRow title={`More from ${product.category}`}>
+        <CarouselRow
+          title={`More from ${product.category}`}
+          seeAllHref={`/search?category=${encodeURIComponent(product.category)}`}
+        >
           {related.map((p) => (
             <ProductCard key={p.id} product={p} fixedWidth />
           ))}

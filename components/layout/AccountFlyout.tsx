@@ -8,20 +8,20 @@ import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/Button";
 
 const LIST_LINKS = [
-  { label: "Create a List", href: "#" },
-  { label: "Find a List or Registry", href: "#" },
+  { label: "Create a List", href: "/out-of-scope?feature=Lists" },
+  { label: "Find a List or Registry", href: "/out-of-scope?feature=Registry" },
 ];
 
 const SIGNED_OUT_ACCOUNT_LINKS = [
   { label: "Account", href: "/account" },
   { label: "Orders", href: "/account/orders" },
-  { label: "Recommendations", href: "#" },
-  { label: "Browsing History", href: "#" },
-  { label: "Your Shopping preferences", href: "#" },
-  { label: "Watchlist", href: "#" },
-  { label: "Video Purchases & Rentals", href: "#" },
-  { label: "Content & Devices", href: "#" },
-  { label: "Memberships & Subscriptions", href: "#" },
+  { label: "Recommendations", href: "/out-of-scope?feature=Recommendations" },
+  { label: "Browsing History", href: "/out-of-scope?feature=Browsing+History" },
+  { label: "Your Shopping preferences", href: "/out-of-scope?feature=Shopping+Preferences" },
+  { label: "Watchlist", href: "/out-of-scope?feature=Watchlist" },
+  { label: "Video Purchases & Rentals", href: "/out-of-scope?feature=Video+Purchases+%26+Rentals" },
+  { label: "Content & Devices", href: "/out-of-scope?feature=Content+%26+Devices" },
+  { label: "Memberships & Subscriptions", href: "/out-of-scope?feature=Memberships+%26+Subscriptions" },
 ];
 
 export function AccountFlyout() {

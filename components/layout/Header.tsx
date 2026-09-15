@@ -7,13 +7,13 @@ import { AccountFlyout } from "@/components/layout/AccountFlyout";
 import { CartBadge } from "@/components/layout/CartBadge";
 
 const SECONDARY_LINKS = [
-  { label: "Prime Video", href: "#" },
-  { label: "Coupons", href: "#" },
-  { label: "Customer Service", href: "#" },
-  { label: "Today's Deals", href: "#" },
-  { label: "Registry", href: "#" },
-  { label: "Gift Cards", href: "#" },
-  { label: "Sell", href: "#" },
+  { label: "Prime Video", href: "/out-of-scope?feature=Prime+Video" },
+  { label: "Coupons", href: "/out-of-scope?feature=Coupons" },
+  { label: "Customer Service", href: "/help" },
+  { label: "Today's Deals", href: "/deals" },
+  { label: "Registry", href: "/out-of-scope?feature=Registry" },
+  { label: "Gift Cards", href: "/gift-cards" },
+  { label: "Sell", href: "/out-of-scope?feature=Sell" },
 ];
 
 export function Header() {
