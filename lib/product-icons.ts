@@ -15,6 +15,7 @@ import {
   Gamepad2,
   GlassWater,
   Glasses,
+  Gift,
   HardDrive,
   Headphones,
   Joystick,
@@ -78,4 +79,5 @@ export const productIcons: Record<ProductIconKey, LucideIcon> = {
   BatteryCharging,
   Router,
   GlassWater,
+  Gift,
 };

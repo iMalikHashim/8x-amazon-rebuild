@@ -847,4 +847,30 @@ export const products: Product[] = [
     icon: "Dumbbell",
     photos: ["1517836357463-d25dfeac3438", "1571019613454-1cb2f99b2d8b", "1517649763962-0c623066013b"],
   },
+
+  // ---------- Gift Cards ----------
+  // Deliberately no `photos` - each design is rendered as a distinct CSS
+  // gradient card in components/gift-cards/GiftCardPicker.tsx, so these
+  // fall back to the generated ProductArt (Gift icon on tint) everywhere
+  // else they appear (cart, orders, PDP) rather than a mismatched photo.
+  ...(["Classic", "Birthday", "Thank You"] as const).flatMap((design) =>
+    ([25, 50, 100] as const).map((amount) => ({
+      id: `gc-${design.toLowerCase().replace(/\s+/g, "-")}-${amount}`,
+      slug: `gift-card-${design.toLowerCase().replace(/\s+/g, "-")}-${amount}`,
+      title: `$${amount} Amazon Rebuild Gift Card — ${design}`,
+      brand: "Amazon Rebuild",
+      category: "Gift Cards" as const,
+      price: amount,
+      rating: 0,
+      reviewCount: 0,
+      prime: false,
+      bullets: [
+        "DIGITAL DELIVERY — Redeemable instantly toward anything in the catalog",
+        "NEVER EXPIRES — No fees, no expiration date",
+        "GREAT FOR ANY OCCASION — Pick the amount and design that fits",
+      ],
+      description: `A $${amount} Amazon Rebuild Gift Card in the ${design} design. Redeemable toward any purchase - never expires.`,
+      icon: "Gift" as const,
+    }))
+  ),
 ];

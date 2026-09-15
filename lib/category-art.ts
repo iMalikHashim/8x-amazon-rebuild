@@ -14,4 +14,5 @@ export const categoryArt: Record<Category, CategoryArt> = {
   Fashion: { accent: "#8C4A5D", tint: "#F0D6DC" },
   "Toys & Games": { accent: "#C4452E", tint: "#F8D9CE" },
   "Sports & Outdoors": { accent: "#2F6B4F", tint: "#CDE9DA" },
+  "Gift Cards": { accent: "#B5762C", tint: "#F6E4C8" },
 };

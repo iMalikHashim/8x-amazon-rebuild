@@ -6,7 +6,10 @@ export type Category =
   | "Gaming"
   | "Fashion"
   | "Toys & Games"
-  | "Sports & Outdoors";
+  | "Sports & Outdoors"
+  /** Deliberately excluded from search/browse/home-row catalog surfaces
+   * (see lib/catalog.ts) - only reachable through /gift-cards. */
+  | "Gift Cards";
 
 /** Keys into the lucide-react icon set used by ProductArt. */
 export type ProductIconKey =
@@ -46,7 +49,8 @@ export type ProductIconKey =
   | "Battery"
   | "BatteryCharging"
   | "Router"
-  | "GlassWater";
+  | "GlassWater"
+  | "Gift";
 
 export interface Address {
   fullName: string;

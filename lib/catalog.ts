@@ -22,6 +22,12 @@ function rowToProduct(row: typeof productsTable.$inferSelect): Product {
   };
 }
 
+/** Categories that exist as real product rows (so cart/orders/checkout work
+ * normally for them) but are deliberately kept out of search, home rows,
+ * and the category filter list - they're reachable only through their own
+ * dedicated page, not the general shopping flow. */
+const CATALOG_EXCLUDED_CATEGORIES: Category[] = ["Gift Cards"];
+
 /**
  * The whole catalog is ~40 rows, so every query here fetches the full
  * table once and filters/sorts in JS - the same relevance-scoring and
@@ -32,6 +38,13 @@ function rowToProduct(row: typeof productsTable.$inferSelect): Product {
  */
 async function fetchAllProducts(): Promise<Product[]> {
   const rows = await db.select().from(productsTable);
+  return rows.map(rowToProduct).filter((p) => !CATALOG_EXCLUDED_CATEGORIES.includes(p.category));
+}
+
+/** Gift card products specifically - the one place CATALOG_EXCLUDED_CATEGORIES
+ * is bypassed, since /gift-cards is their dedicated page. */
+export async function getGiftCardProducts(): Promise<Product[]> {
+  const rows = await db.select().from(productsTable).where(eq(productsTable.category, "Gift Cards"));
   return rows.map(rowToProduct);
 }
 
