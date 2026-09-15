@@ -41,12 +41,12 @@ def check(label, condition):
 # --- 1. Unit-level: redact_secrets() -------------------------------------
 
 leaked_shape = (
-    "postgresql://neondb_owner:npg_DGQVE31AhIkH@ep-restless-firefly-a5jn3441"
+    "postgresql://neondb_owner:npg_FakeTestPasswordOnly123@ep-example-project-12345678"
     "-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
 )
 redacted = redact_secrets(leaked_shape)
-check("exact leaked-shape Neon URL is fully redacted", "npg_DGQVE31AhIkH" not in redacted)
-check("exact leaked-shape Neon URL leaves the placeholder", "[REDACTED-DB-URL]" in redacted)
+check("Neon-shaped URL (same shape as the one that leaked) is fully redacted", "npg_FakeTestPasswordOnly123" not in redacted)
+check("Neon-shaped URL leaves the placeholder", "[REDACTED-DB-URL]" in redacted)
 
 check(
     "bare postgres:// URL (no npg_ prefix) is redacted",

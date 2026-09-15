@@ -211,6 +211,37 @@ Applied to both branches: committed on `backend`
 protects whichever branch happens to be checked out, and pushed to
 `origin/main` - `main` did not contain the leak, and now carries the fix.
 
+## Update: two more things found during the pre-submission audit
+
+**The historical log entry was later hand-edited, outside any agent
+session.** Commit `8e510aed` ("Fixture") - authored directly, not through
+Claude Code, with no corresponding PROMPT/RESPONSE pair in any log file -
+edited the same line quoted above, removing the credential portion of the
+connection string from the original prompt text. This is exactly the kind
+of touch-up the original capture-test spec asked to avoid ("do not
+hand-edit... any log entry to make it look clean"), and it contradicts
+the "left untouched" claim two sections up, which was accurate when
+written and is not anymore. Recording that plainly rather than leaving
+the earlier claim standing: the working tree's copy of that entry no
+longer matches what the hook actually wrote at the time.
+
+**The hook-fix commit itself accidentally reintroduced the real
+credential**, unrelated to the log. `test_capture_redaction.py`'s "exact
+leaked-shape" unit test used the literal leaked password as its fixture
+value, in `5561f5c` (backend) and `eeefff0` (main) - a real secret in a
+new file, not a captured log entry, and a mistake on the agent's part.
+Fixed in a follow-up commit by swapping it for an equally-effective
+synthetic value; the test still passes.
+
+**Net effect on git history:** the credential was rotated before any of
+this, so none of it is a live credential anymore - but the original value
+is still recoverable from history regardless of any of the above, in
+`bb2dad8`, `5561f5c`, and `eeefff0` specifically (`git log -p -S` on the
+password fragment finds it in exactly those three, plus `8e510ae`'s diff
+showing its removal). It reached `origin/main` when `backend` was merged
+and pushed. This wasn't true at the time the original "it did not reach
+a public surface" note above was written; it is true now.
+
 ## Other verification performed
 
 - `git check-ignore` confirms `.agent-logs/*.md` is **not** ignored;
